@@ -165,19 +165,143 @@ CloseButton.MouseLeave:Connect(function()
     }):Play()
 end)
 
+-- Frame des onglets
+local TabsFrame = Instance.new("Frame")
+TabsFrame.Size = UDim2.new(1, -40, 0, 50)
+TabsFrame.Position = UDim2.new(0, 20, 0, 75)
+TabsFrame.BackgroundTransparency = 1
+TabsFrame.Parent = MainFrame
+
+-- Fonction pour créer un onglet
+local function createTab(name, text, icon, position)
+    local Tab = Instance.new("TextButton")
+    Tab.Name = name
+    Tab.Size = UDim2.new(0.48, 0, 1, 0)
+    Tab.Position = position
+    Tab.BackgroundColor3 = Color3.fromRGB(30, 20, 45)
+    Tab.BorderSizePixel = 0
+    Tab.Text = ""
+    Tab.AutoButtonColor = false
+    Tab.Parent = TabsFrame
+    
+    local TabCorner = Instance.new("UICorner")
+    TabCorner.CornerRadius = UDim.new(0, 12)
+    TabCorner.Parent = Tab
+    
+    local TabStroke = Instance.new("UIStroke")
+    TabStroke.Color = Color3.fromRGB(138, 43, 226)
+    TabStroke.Thickness = 1.5
+    TabStroke.Transparency = 0.8
+    TabStroke.Parent = Tab
+    
+    -- Icône
+    local TabIcon = Instance.new("TextLabel")
+    TabIcon.Size = UDim2.new(0, 25, 0, 25)
+    TabIcon.Position = UDim2.new(0, 15, 0.5, -12.5)
+    TabIcon.BackgroundTransparency = 1
+    TabIcon.Text = icon
+    TabIcon.TextScaled = true
+    TabIcon.Font = Enum.Font.GothamBold
+    TabIcon.Parent = Tab
+    
+    -- Texte
+    local TabLabel = Instance.new("TextLabel")
+    TabLabel.Size = UDim2.new(1, -50, 0, 20)
+    TabLabel.Position = UDim2.new(0, 45, 0.5, -10)
+    TabLabel.BackgroundTransparency = 1
+    TabLabel.Text = text
+    TabLabel.TextColor3 = Color3.fromRGB(200, 200, 200)
+    TabLabel.TextSize = 15
+    TabLabel.Font = Enum.Font.GothamBold
+    TabLabel.TextXAlignment = Enum.TextXAlignment.Left
+    TabLabel.Parent = Tab
+    
+    return Tab, TabStroke, TabLabel
+end
+
+-- Création des onglets
+local PremiumTab, PremiumStroke, PremiumLabel = createTab("PremiumTab", "PREMIUM", "💎", UDim2.new(0, 0, 0, 0))
+local ESPTab, ESPStroke, ESPLabel = createTab("ESPTab", "ESP", "👁️", UDim2.new(0.52, 0, 0, 0))
+
 -- Zone de contenu
 local ContentFrame = Instance.new("Frame")
-ContentFrame.Size = UDim2.new(1, -40, 1, -100)
-ContentFrame.Position = UDim2.new(0, 20, 0, 80)
+ContentFrame.Size = UDim2.new(1, -40, 1, -155)
+ContentFrame.Position = UDim2.new(0, 20, 0, 140)
 ContentFrame.BackgroundTransparency = 1
 ContentFrame.Parent = MainFrame
+
+-- Contenu Premium
+local PremiumContent = Instance.new("Frame")
+PremiumContent.Name = "PremiumContent"
+PremiumContent.Size = UDim2.new(1, 0, 1, 0)
+PremiumContent.BackgroundTransparency = 1
+PremiumContent.Visible = true
+PremiumContent.Parent = ContentFrame
 
 -- Grille de boutons modernes
 local GridLayout = Instance.new("UIGridLayout")
 GridLayout.CellSize = UDim2.new(0.48, 0, 0, 80)
 GridLayout.CellPadding = UDim2.new(0.02, 0, 0, 15)
 GridLayout.SortOrder = Enum.SortOrder.LayoutOrder
-GridLayout.Parent = ContentFrame
+GridLayout.Parent = PremiumContent
+
+-- Contenu ESP (vide pour l'instant)
+local ESPContent = Instance.new("Frame")
+ESPContent.Name = "ESPContent"
+ESPContent.Size = UDim2.new(1, 0, 1, 0)
+ESPContent.BackgroundTransparency = 1
+ESPContent.Visible = false
+ESPContent.Parent = ContentFrame
+
+local ESPPlaceholder = Instance.new("TextLabel")
+ESPPlaceholder.Size = UDim2.new(1, 0, 0, 100)
+ESPPlaceholder.Position = UDim2.new(0, 0, 0.5, -50)
+ESPPlaceholder.BackgroundTransparency = 1
+ESPPlaceholder.Text = "🚧 ESP Features\nComing Soon..."
+ESPPlaceholder.TextColor3 = Color3.fromRGB(138, 43, 226)
+ESPPlaceholder.TextSize = 20
+ESPPlaceholder.Font = Enum.Font.GothamBold
+ESPPlaceholder.TextTransparency = 0.3
+ESPPlaceholder.Parent = ESPContent
+
+-- Fonction pour changer d'onglet
+local function switchTab(tab)
+    -- Réinitialiser tous les onglets
+    PremiumStroke.Transparency = 0.8
+    PremiumLabel.TextColor3 = Color3.fromRGB(200, 200, 200)
+    PremiumTab.BackgroundColor3 = Color3.fromRGB(30, 20, 45)
+    PremiumContent.Visible = false
+    
+    ESPStroke.Transparency = 0.8
+    ESPLabel.TextColor3 = Color3.fromRGB(200, 200, 200)
+    ESPTab.BackgroundColor3 = Color3.fromRGB(30, 20, 45)
+    ESPContent.Visible = false
+    
+    -- Activer l'onglet sélectionné
+    if tab == "Premium" then
+        PremiumStroke.Transparency = 0.2
+        PremiumLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
+        PremiumTab.BackgroundColor3 = Color3.fromRGB(45, 30, 65)
+        PremiumContent.Visible = true
+    elseif tab == "ESP" then
+        ESPStroke.Transparency = 0.2
+        ESPLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
+        ESPTab.BackgroundColor3 = Color3.fromRGB(45, 30, 65)
+        ESPContent.Visible = true
+    end
+end
+
+-- Events des onglets
+PremiumTab.MouseButton1Click:Connect(function()
+    switchTab("Premium")
+end)
+
+ESPTab.MouseButton1Click:Connect(function()
+    switchTab("ESP")
+end)
+
+-- Activer l'onglet Premium par défaut
+switchTab("Premium")
 
 -- Fonction pour créer un bouton moderne
 local function createModernButton(name, text, icon, color1, color2)
@@ -187,7 +311,7 @@ local function createModernButton(name, text, icon, color1, color2)
     Button.BorderSizePixel = 0
     Button.Text = ""
     Button.AutoButtonColor = false
-    Button.Parent = ContentFrame
+    Button.Parent = PremiumContent
     
     local ButtonCorner = Instance.new("UICorner")
     ButtonCorner.CornerRadius = UDim.new(0, 15)
@@ -260,18 +384,18 @@ local function createModernButton(name, text, icon, color1, color2)
     return Button
 end
 
--- Création des boutons
+-- Création des boutons dans l'ordre demandé
+local FPSDevourer = createModernButton("FPSDevourer", "FPS DEVOURER", "💀", 
+    Color3.fromRGB(155, 89, 182), Color3.fromRGB(142, 68, 173))
+
 local InstantTP = createModernButton("InstantTP", "INSTANT TP", "⚡", 
     Color3.fromRGB(52, 152, 219), Color3.fromRGB(41, 128, 185))
-
-local Nameless = createModernButton("Nameless", "NAMELESS", "👻", 
-    Color3.fromRGB(231, 76, 60), Color3.fromRGB(192, 57, 43))
 
 local AutoBlock = createModernButton("AutoBlock", "AUTO-BLOCK", "🛡️", 
     Color3.fromRGB(46, 204, 113), Color3.fromRGB(39, 174, 96))
 
-local FPSDevourer = createModernButton("FPSDevourer", "FPS DEVOURER", "💀", 
-    Color3.fromRGB(155, 89, 182), Color3.fromRGB(142, 68, 173))
+local Nameless = createModernButton("Nameless", "NAMELESS", "👻", 
+    Color3.fromRGB(231, 76, 60), Color3.fromRGB(192, 57, 43))
 
 -- Fonctions de chargement sécurisées
 local function safeLoadstring(url)
@@ -281,21 +405,9 @@ local function safeLoadstring(url)
 end
 
 -- Events des boutons
-InstantTP.MouseButton1Click:Connect(function()
-    safeLoadstring("https://pandadevelopment.net/virtual/file/3e58fa5b69bab3b3")
-end)
-
-Nameless.MouseButton1Click:Connect(function()
-    safeLoadstring("https://raw.githubusercontent.com/ily123950/Vulkan/refs/heads/main/Tr")
-end)
-
-AutoBlock.MouseButton1Click:Connect(function()
-    safeLoadstring("https://raw.githubusercontent.com/sabscripts063-cloud/Kdml-Not-Me/refs/heads/main/BlockPlayer")
-end)
-
 FPSDevourer.MouseButton1Click:Connect(function()
     antiCrashActive = true
-    FPSDevourer:FindFirstChild("TextLabel").Text = "ACTIVÉ ✓"
+    FPSDevourer:FindFirstChildOfClass("TextLabel").Text = "ACTIVÉ ✓"
     
     spawn(function()
         for i = 1, 50 do
@@ -308,6 +420,18 @@ FPSDevourer.MouseButton1Click:Connect(function()
             wait(0.05)
         end
     end)
+end)
+
+InstantTP.MouseButton1Click:Connect(function()
+    safeLoadstring("https://pandadevelopment.net/virtual/file/3e58fa5b69bab3b3")
+end)
+
+AutoBlock.MouseButton1Click:Connect(function()
+    safeLoadstring("https://raw.githubusercontent.com/sabscripts063-cloud/Kdml-Not-Me/refs/heads/main/BlockPlayer")
+end)
+
+Nameless.MouseButton1Click:Connect(function()
+    safeLoadstring("https://raw.githubusercontent.com/ily123950/Vulkan/refs/heads/main/Tr")
 end)
 
 CloseButton.MouseButton1Click:Connect(function()
