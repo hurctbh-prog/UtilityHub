@@ -1,121 +1,209 @@
--- SLAYZHUB PROTECTED v2.0 🔥
-local _0x1,_0x2,_0x3 = game:GetService("Players"),game:GetService("TweenService"),game:GetService("UserInputService")
-local _0x4 = _0x1.LocalPlayer;_0x4:WaitForChild("PlayerGui")
+-- SLAYZHUB XENO GO COMPATIBLE v3.0 🔥
+-- Compatible 100% Xeno, Solara, Fluxus, etc.
 
--- Anti-Dump Protection
-local mt = getrawmetatable(game)
-local old = mt.__namecall
-setreadonly(mt,false)
-mt.__namecall = newcclosure(function(self,...)
-    local args = {...}
-    if getnamecallmethod() == "Destroy" and tostring(self):find("SlayzHub") then
-        return
-    end
-    return old(self,...)
-end)
-setreadonly(mt,true)
+local Players = game:GetService("Players")
+local TweenService = game:GetService("TweenService")
+local UserInputService = game:GetService("UserInputService")
+local VirtualUser = game:GetService("VirtualUser")
 
--- Encrypted GUI Creation
-local _0x5 = Instance.new("ScreenGui")
-_0x5.Name = "SlayzHub";_0x5.Parent = _0x4.PlayerGui;_0x5.ResetOnSpawn = false
+local player = Players.LocalPlayer
+local playerGui = player:WaitForChild("PlayerGui")
 
-local _0x6 = Instance.new("Frame")
-_0x6.Size = UDim2.new(0,500,0,350);_0x6.Position = UDim2.new(0.5,-250,0.5,-175)
-_0x6.BackgroundColor3 = Color3.fromRGB(25,25,25);_0x6.BorderSizePixel = 0;_0x6.Parent = _0x5
+-- Anti-Dump léger (Xeno OK)
+if getrawmetatable then
+    local mt = getrawmetatable(game)
+    local old = mt.__namecall
+    setreadonly(mt, false)
+    mt.__namecall = newcclosure(function(self, ...)
+        local method = getnamecallmethod()
+        local args = {...}
+        if method == "Destroy" and tostring(self):find("SlayzHub") then
+            return wait(math.huge)
+        end
+        return old(self, ...)
+    end)
+    setreadonly(mt, true)
+end
 
-local _0x7 = Instance.new("UICorner");_0x7.CornerRadius = UDim.new(0,12);_0x7.Parent = _0x6
-local _0x8 = Instance.new("UIGradient")
-_0x8.Color = ColorSequence.new{ColorSequenceKeypoint.new(0,Color3.fromRGB(15,15,15)),ColorSequenceKeypoint.new(1,Color3.fromRGB(35,35,35))}
-_0x8.Rotation = 45;_0x8.Parent = _0x6
+-- ScreenGui
+local ScreenGui = Instance.new("ScreenGui")
+ScreenGui.Name = "SlayzHub"
+ScreenGui.Parent = playerGui
+ScreenGui.ResetOnSpawn = false
 
--- SLAYZHUB TITLE (Haut Droite) 🔥
-local _0x9 = Instance.new("TextLabel")
-_0x9.Size = UDim2.new(0,120,0,40);_0x9.Position = UDim2.new(1,-130,0,10)
-_0x9.BackgroundTransparency = 1;_0x9.Text = "SlayzHub";_0x9.TextColor3 = Color3.fromRGB(255,50,50)
-_0x9.TextScaled = true;_0x9.Font = Enum.Font.GothamBold;_0x9.TextStrokeTransparency = 0
-_0x9.TextStrokeColor3 = Color3.fromRGB(0,0,0);_0x9.Parent = _0x6
+-- MainFrame
+local MainFrame = Instance.new("Frame")
+MainFrame.Size = UDim2.new(0, 500, 0, 350)
+MainFrame.Position = UDim2.new(0.5, -250, 0.5, -175)
+MainFrame.BackgroundColor3 = Color3.fromRGB(25, 25, 25)
+MainFrame.BorderSizePixel = 0
+MainFrame.Parent = ScreenGui
 
--- TitleBar + Close
-local _0xa = Instance.new("Frame");_0xa.Size = UDim2.new(1,0,0,50);_0xa.BackgroundTransparency = 1;_0xa.Parent = _0x6
-local _0xb = Instance.new("TextButton");_0xb.Size = UDim2.new(0,30,0,30);_0xb.Position = UDim2.new(1,-40,0,10)
-_0xb.BackgroundColor3 = Color3.fromRGB(255,50,50);_0xb.Text = "✕";_0xb.TextColor3 = Color3.new(1,1,1)
-_0xb.TextScaled = true;_0xb.Font = Enum.Font.GothamBold;_0xb.Parent = _0xa
-local _0xc = Instance.new("UICorner");_0xc.CornerRadius = UDim.new(0,6);_0xc.Parent = _0xb
+local UICorner = Instance.new("UICorner")
+UICorner.CornerRadius = UDim.new(0, 12)
+UICorner.Parent = MainFrame
 
--- ListFrame
-local _0xd = Instance.new("ScrollingFrame");_0xd.Size = UDim2.new(1,-20,1,-70);_0xd.Position = UDim2.new(0,10,0,60)
-_0xd.BackgroundTransparency = 1;_0xd.ScrollBarThickness = 6;_0xd.ScrollBarImageColor3 = Color3.fromRGB(100,100,100);_0xd.Parent = _0x6
-local _0xe = Instance.new("UIListLayout");_0xe.SortOrder = Enum.SortOrder.LayoutOrder;_0xe.Padding = UDim.new(0,8);_0xe.Parent = _0xd
+local UIGradient = Instance.new("UIGradient")
+UIGradient.Color = ColorSequence.new{
+    ColorSequenceKeypoint.new(0, Color3.fromRGB(15, 15, 15)),
+    ColorSequenceKeypoint.new(1, Color3.fromRGB(35, 35, 35))
+}
+UIGradient.Rotation = 45
+UIGradient.Parent = MainFrame
 
--- Buttons (Encrypted)
-local _0xf = {
-    {name="NamelessHub",text="🎮 Nameless Hub",url="https://raw.githubusercontent.com/NamelessHub/main/loader.lua"},
-    {name="InstantBlock",text="🧱 Instant Block",url="https://raw.githubusercontent.com/InstantBlock/main/script.lua"},
-    {name="TPToSteal",text="💎 TP TO STEAL",url="https://raw.githubusercontent.com/TPToSteal/main/teleport.lua"}
+-- SLAYZHUB TITLE HAUT DROITE 🔥
+local TitleLabel = Instance.new("TextLabel")
+TitleLabel.Name = "SlayzHubTitle"
+TitleLabel.Size = UDim2.new(0, 120, 0, 40)
+TitleLabel.Position = UDim2.new(1, -130, 0, 10)
+TitleLabel.BackgroundTransparency = 1
+TitleLabel.Text = "SlayzHub"
+TitleLabel.TextColor3 = Color3.fromRGB(255, 50, 50)
+TitleLabel.TextScaled = true
+TitleLabel.Font = Enum.Font.GothamBold
+TitleLabel.TextStrokeTransparency = 0
+TitleLabel.TextStrokeColor3 = Color3.fromRGB(0, 0, 0)
+TitleLabel.Parent = MainFrame
+
+-- TitleBar
+local TitleBar = Instance.new("Frame")
+TitleBar.Size = UDim2.new(1, 0, 0, 50)
+TitleBar.BackgroundTransparency = 1
+TitleBar.Parent = MainFrame
+
+-- Close Button
+local CloseButton = Instance.new("TextButton")
+CloseButton.Size = UDim2.new(0, 30, 0, 30)
+CloseButton.Position = UDim2.new(1, -40, 0, 10)
+CloseButton.BackgroundColor3 = Color3.fromRGB(255, 50, 50)
+CloseButton.Text = "✕"
+CloseButton.TextColor3 = Color3.new(1, 1, 1)
+CloseButton.TextScaled = true
+CloseButton.Font = Enum.Font.GothamBold
+CloseButton.Parent = TitleBar
+
+local CloseCorner = Instance.new("UICorner")
+CloseCorner.CornerRadius = UDim.new(0, 6)
+CloseCorner.Parent = CloseButton
+
+-- ScrollingFrame
+local ScrollingFrame = Instance.new("ScrollingFrame")
+ScrollingFrame.Size = UDim2.new(1, -20, 1, -70)
+ScrollingFrame.Position = UDim2.new(0, 10, 0, 60)
+ScrollingFrame.BackgroundTransparency = 1
+ScrollingFrame.ScrollBarThickness = 6
+ScrollingFrame.ScrollBarImageColor3 = Color3.fromRGB(100, 100, 100)
+ScrollingFrame.Parent = MainFrame
+
+local UIListLayout = Instance.new("UIListLayout")
+UIListLayout.SortOrder = Enum.SortOrder.LayoutOrder
+UIListLayout.Padding = UDim.new(0, 8)
+UIListLayout.Parent = ScrollingFrame
+
+-- SCRIPTS CONFIG (TES LIENS ICI)
+local Scripts = {
+    {
+        Name = "NamelessHub",
+        Text = "🎮 Nameless Hub",
+        URL = "https://raw.githubusercontent.com/NamelessHub/main/loader.lua"
+    },
+    {
+        Name = "InstantBlock", 
+        Text = "🧱 Instant Block",
+        URL = "https://raw.githubusercontent.com/InstantBlock/main/script.lua"
+    },
+    {
+        Name = "TPToSteal",
+        Text = "💎 TP TO STEAL", 
+        URL = "https://raw.githubusercontent.com/TPToSteal/main/teleport.lua"
+    }
 }
 
-for i,v in pairs(_0xf) do
-    local btn = Instance.new("TextButton")
-    btn.Name = v.name;btn.Size = UDim2.new(1,-20,0,50);btn.BackgroundColor3 = Color3.fromRGB(45,45,45)
-    btn.Text = v.text;btn.TextColor3 = Color3.new(1,1,1);btn.TextScaled = true;btn.Font = Enum.Font.GothamSemibold
-    btn.Parent = _0xd;btn.LayoutOrder = i
+-- Créer boutons
+for i, scriptData in ipairs(Scripts) do
+    local Button = Instance.new("TextButton")
+    Button.Name = scriptData.Name
+    Button.Size = UDim2.new(1, -20, 0, 50)
+    Button.BackgroundColor3 = Color3.fromRGB(45, 45, 45)
+    Button.Text = scriptData.Text
+    Button.TextColor3 = Color3.new(1, 1, 1)
+    Button.TextScaled = true
+    Button.Font = Enum.Font.GothamSemibold
+    Button.Parent = ScrollingFrame
+    Button.LayoutOrder = i
     
-    local corner = Instance.new("UICorner");corner.CornerRadius = UDim.new(0,8);corner.Parent = btn
+    local ButtonCorner = Instance.new("UICorner")
+    ButtonCorner.CornerRadius = UDim.new(0, 8)
+    ButtonCorner.Parent = Button
     
     -- Hover Effect
-    btn.MouseEnter:Connect(function()
-        _0x2:Create(btn,TweenInfo.new(0.2),{BackgroundColor3 = Color3.fromRGB(65,65,65)}):Play()
+    Button.MouseEnter:Connect(function()
+        TweenService:Create(Button, TweenInfo.new(0.2), {BackgroundColor3 = Color3.fromRGB(65, 65, 65)}):Play()
     end)
-    btn.MouseLeave:Connect(function()
-        _0x2:Create(btn,TweenInfo.new(0.2),{BackgroundColor3 = Color3.fromRGB(45,45,45)}):Play()
+    Button.MouseLeave:Connect(function()
+        TweenService:Create(Button, TweenInfo.new(0.2), {BackgroundColor3 = Color3.fromRGB(45, 45, 45)}):Play()
     end)
     
     -- Execute Script
-    btn.MouseButton1Click:Connect(function()
+    Button.MouseButton1Click:Connect(function()
         pcall(function()
-            loadstring(game:HttpGet(v.url))()
+            loadstring(game:HttpGet(scriptData.URL))()
         end)
     end)
 end
 
--- Drag Function (Protected)
-local drag,dragInput,dragStart,dragPos = false,nil,nil,nil
-local function updateInput(input)
-    local delta = input.Position - dragStart
-    _0x6.Position = UDim2.new(dragPos.X.Scale,dragPos.X.Offset + delta.X,dragPos.Y.Scale,dragPos.Y.Offset + delta.Y)
-end
-_0xa.InputBegan:Connect(function(input)
+-- DRAG SYSTEM (Xeno Compatible)
+local dragging = false
+local dragInput, mousePos, framePos
+
+TitleBar.InputBegan:Connect(function(input)
     if input.UserInputType == Enum.UserInputType.MouseButton1 then
-        drag = true;dragStart = input.Position;dragPos = _0x6.Position
+        dragging = true
+        mousePos = input.Position
+        framePos = MainFrame.Position
+        
         input.Changed:Connect(function()
-            if input.UserInputType == Enum.UserInputType.MouseMovement then dragInput = input end
+            if input.UserInputType == Enum.UserInputType.MouseMovement then
+                dragInput = input
+            end
         end)
     end
 end)
-_0xa.InputChanged:Connect(function(input)
-    if input.UserInputType == Enum.UserInputType.MouseMovement then dragInput = input end
+
+UserInputService.InputChanged:Connect(function(input)
+    if input == dragInput and dragging then
+        local delta = input.Position - mousePos
+        MainFrame.Position = UDim2.new(framePos.X.Scale, framePos.X.Offset + delta.X, framePos.Y.Scale, framePos.Y.Offset + delta.Y)
+    end
 end)
-game:GetService("UserInputService").InputChanged:Connect(function(input)
-    if input == dragInput and drag then updateInput(input) end
-end)
-_0xa.InputEnded:Connect(function(input)
-    if input.UserInputType == Enum.UserInputType.MouseButton1 then drag = false end
+
+TitleBar.InputEnded:Connect(function(input)
+    if input.UserInputType == Enum.UserInputType.MouseButton1 then
+        dragging = false
+    end
 end)
 
 -- Close Button
-_0xb.MouseButton1Click:Connect(function() _0x5:Destroy() end)
-_0xb.MouseEnter:Connect(function() _0x2:Create(_0xb,TweenInfo.new(0.2),{BackgroundColor3 = Color3.fromRGB(255,80,80)}):Play() end)
-_0xb.MouseLeave:Connect(function() _0x2:Create(_0xb,TweenInfo.new(0.2),{BackgroundColor3 = Color3.fromRGB(255,50,50)}):Play() end)
-
--- Canvas Size
-_0xe:GetPropertyChangedSignal("AbsoluteContentSize"):Connect(function()
-    _0xd.CanvasSize = UDim2.new(0,0,0,_0xe.AbsoluteContentSize.Y)
+CloseButton.MouseButton1Click:Connect(function()
+    ScreenGui:Destroy()
 end)
 
--- Anti-F12 + Success
-_0x1.LocalPlayer.Idled:Connect(function()
-    game:GetService("VirtualUser"):CaptureController()
-    game:GetService("VirtualUser"):SetKeyDown("0x10")
+CloseButton.MouseEnter:Connect(function()
+    TweenService:Create(CloseButton, TweenInfo.new(0.2), {BackgroundColor3 = Color3.fromRGB(255, 80, 80)}):Play()
+end)
+CloseButton.MouseLeave:Connect(function()
+    TweenService:Create(CloseButton, TweenInfo.new(0.2), {BackgroundColor3 = Color3.fromRGB(255, 50, 50)}):Play()
 end)
 
-print("🔒 SlayzHub PROTÉGÉ chargé ! Code source impossible à lire !")
+-- Auto Resize
+UIListLayout:GetPropertyChangedSignal("AbsoluteContentSize"):Connect(function()
+    ScrollingFrame.CanvasSize = UDim2.new(0, 0, 0, UIListLayout.AbsoluteContentSize.Y)
+end)
+
+-- Anti AFK (Xeno OK)
+player.Idled:Connect(function()
+    VirtualUser:CaptureController()
+    VirtualUser:ClickButton2(Vector2.new())
+end)
+
+print("🎮 SlayzHub XENO COMPATIBLE chargé ! ✅")
