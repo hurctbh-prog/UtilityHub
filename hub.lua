@@ -1,4 +1,5 @@
 -- SLAYZHUB XENO GO v4.2 🔥 INTERFACE MODERNE PREMIUM
+-- Design violet-noir moderne style Dissoudre Hub
 -- Design vert-noir moderne
 
 local Players = game:GetService("Players")
@@ -43,6 +44,9 @@ ScreenGui.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
 -- Frame principale
 local MainFrame = Instance.new("Frame")
 MainFrame.Name = "MainFrame"
+MainFrame.Size = UDim2.new(0, 420, 0, 320)
+MainFrame.Position = UDim2.new(0.5, -210, 0.5, -160)
+MainFrame.BackgroundColor3 = Color3.fromRGB(15, 15, 25)
 MainFrame.Size = UDim2.new(0, 450, 0, 380)
 MainFrame.Position = UDim2.new(0.5, -225, 0.5, -190)
 MainFrame.BackgroundColor3 = Color3.fromRGB(10, 10, 10)
@@ -56,6 +60,7 @@ MainCorner.Parent = MainFrame
 -- Header avec titre
 local Header = Instance.new("Frame")
 Header.Size = UDim2.new(1, 0, 0, 50)
+Header.BackgroundColor3 = Color3.fromRGB(20, 20, 35)
 Header.BackgroundColor3 = Color3.fromRGB(15, 15, 15)
 Header.BorderSizePixel = 0
 Header.Parent = MainFrame
@@ -67,6 +72,7 @@ HeaderCorner.Parent = Header
 local HeaderMask = Instance.new("Frame")
 HeaderMask.Size = UDim2.new(1, 0, 0, 12)
 HeaderMask.Position = UDim2.new(0, 0, 1, -12)
+HeaderMask.BackgroundColor3 = Color3.fromRGB(20, 20, 35)
 HeaderMask.BackgroundColor3 = Color3.fromRGB(15, 15, 15)
 HeaderMask.BorderSizePixel = 0
 HeaderMask.Parent = Header
@@ -77,6 +83,7 @@ TitleLabel.Size = UDim2.new(1, -120, 1, 0)
 TitleLabel.Position = UDim2.new(0, 15, 0, 0)
 TitleLabel.BackgroundTransparency = 1
 TitleLabel.Text = "Slayzhub"
+TitleLabel.TextColor3 = Color3.fromRGB(138, 43, 226)
 TitleLabel.TextColor3 = Color3.fromRGB(0, 255, 100)
 TitleLabel.TextSize = 20
 TitleLabel.Font = Enum.Font.GothamBold
@@ -89,6 +96,7 @@ SubtitleLabel.Size = UDim2.new(1, -120, 0, 15)
 SubtitleLabel.Position = UDim2.new(0, 15, 1, -18)
 SubtitleLabel.BackgroundTransparency = 1
 SubtitleLabel.Text = "Made By Slayzhub ♥"
+SubtitleLabel.TextColor3 = Color3.fromRGB(150, 150, 170)
 SubtitleLabel.TextColor3 = Color3.fromRGB(120, 120, 120)
 SubtitleLabel.TextSize = 11
 SubtitleLabel.Font = Enum.Font.Gotham
@@ -99,8 +107,10 @@ SubtitleLabel.Parent = Header
 local CloseButton = Instance.new("TextButton")
 CloseButton.Size = UDim2.new(0, 35, 0, 35)
 CloseButton.Position = UDim2.new(1, -45, 0, 7)
+CloseButton.BackgroundColor3 = Color3.fromRGB(138, 43, 226)
 CloseButton.BackgroundColor3 = Color3.fromRGB(0, 255, 100)
 CloseButton.Text = "×"
+CloseButton.TextColor3 = Color3.fromRGB(255, 255, 255)
 CloseButton.TextColor3 = Color3.fromRGB(0, 0, 0)
 CloseButton.TextSize = 22
 CloseButton.Font = Enum.Font.GothamBold
@@ -110,13 +120,35 @@ local CloseCorner = Instance.new("UICorner")
 CloseCorner.CornerRadius = UDim.new(0, 8)
 CloseCorner.Parent = CloseButton
 
+-- Container principal avec sidebar
 -- Container principal
 local Container = Instance.new("Frame")
+Container.Size = UDim2.new(1, 0, 1, -50)
+Container.Position = UDim2.new(0, 0, 0, 50)
 Container.Size = UDim2.new(1, -20, 1, -70)
 Container.Position = UDim2.new(0, 10, 0, 60)
 Container.BackgroundTransparency = 1
 Container.Parent = MainFrame
 
+-- Sidebar gauche
+local Sidebar = Instance.new("Frame")
+Sidebar.Size = UDim2.new(0, 100, 1, 0)
+Sidebar.BackgroundColor3 = Color3.fromRGB(20, 20, 35)
+Sidebar.BorderSizePixel = 0
+Sidebar.Parent = Container
+
+local SidebarCorner = Instance.new("UICorner")
+SidebarCorner.CornerRadius = UDim.new(0, 12)
+SidebarCorner.Parent = Sidebar
+
+local SidebarMask = Instance.new("Frame")
+SidebarMask.Size = UDim2.new(0, 12, 1, 0)
+SidebarMask.Position = UDim2.new(1, -12, 0, 0)
+SidebarMask.BackgroundColor3 = Color3.fromRGB(20, 20, 35)
+SidebarMask.BorderSizePixel = 0
+SidebarMask.Parent = Sidebar
+
+-- Layout pour les onglets
 -- Barre d'onglets horizontale
 local TabBar = Instance.new("Frame")
 TabBar.Size = UDim2.new(1, 0, 0, 45)
@@ -133,30 +165,41 @@ local TabLayout = Instance.new("UIListLayout")
 TabLayout.FillDirection = Enum.FillDirection.Horizontal
 TabLayout.Padding = UDim.new(0, 5)
 TabLayout.SortOrder = Enum.SortOrder.LayoutOrder
+TabLayout.Parent = Sidebar
 TabLayout.Parent = TabBar
 
 local TabPadding = Instance.new("UIPadding")
+TabPadding.PaddingTop = UDim.new(0, 10)
+TabPadding.Parent = Sidebar
 TabPadding.PaddingLeft = UDim.new(0, 5)
 TabPadding.PaddingRight = UDim.new(0, 5)
 TabPadding.PaddingTop = UDim.new(0, 5)
 TabPadding.PaddingBottom = UDim.new(0, 5)
 TabPadding.Parent = TabBar
 
+-- Fonction pour créer un onglet
 -- Fonction pour créer un onglet horizontal
 local function createTab(name, text, order)
     local Tab = Instance.new("TextButton")
     Tab.Name = name
+    Tab.Size = UDim2.new(1, 0, 0, 40)
+    Tab.BackgroundColor3 = Color3.fromRGB(25, 25, 40)
+    Tab.BackgroundTransparency = 1
     Tab.Size = UDim2.new(0, 100, 1, -10)
     Tab.BackgroundColor3 = Color3.fromRGB(20, 20, 20)
     Tab.BorderSizePixel = 0
     Tab.Text = text
+    Tab.TextColor3 = Color3.fromRGB(150, 150, 170)
+    Tab.TextSize = 13
+    Tab.Font = Enum.Font.Gotham
     Tab.TextColor3 = Color3.fromRGB(120, 120, 120)
     Tab.TextSize = 14
     Tab.Font = Enum.Font.GothamBold
     Tab.LayoutOrder = order
     Tab.AutoButtonColor = false
+    Tab.Parent = Sidebar
     Tab.Parent = TabBar
-
+    
     local TabCorner = Instance.new("UICorner")
     TabCorner.CornerRadius = UDim.new(0, 6)
     TabCorner.Parent = Tab
@@ -170,6 +213,8 @@ local ESPTab = createTab("ESPTab", "ESP", 2)
 
 -- Zone de contenu
 local ContentFrame = Instance.new("Frame")
+ContentFrame.Size = UDim2.new(1, -105, 1, 0)
+ContentFrame.Position = UDim2.new(0, 105, 0, 0)
 ContentFrame.Size = UDim2.new(1, 0, 1, -55)
 ContentFrame.Position = UDim2.new(0, 0, 0, 55)
 ContentFrame.BackgroundTransparency = 1
@@ -182,6 +227,7 @@ PremiumContent.Size = UDim2.new(1, 0, 1, 0)
 PremiumContent.BackgroundTransparency = 1
 PremiumContent.BorderSizePixel = 0
 PremiumContent.ScrollBarThickness = 4
+PremiumContent.ScrollBarImageColor3 = Color3.fromRGB(138, 43, 226)
 PremiumContent.ScrollBarImageColor3 = Color3.fromRGB(0, 255, 100)
 PremiumContent.CanvasSize = UDim2.new(0, 0, 0, 0)
 PremiumContent.Visible = true
@@ -194,20 +240,16 @@ PremiumLayout.Parent = PremiumContent
 
 local PremiumPadding = Instance.new("UIPadding")
 PremiumPadding.PaddingTop = UDim.new(0, 10)
+PremiumPadding.PaddingLeft = UDim.new(0, 10)
 PremiumPadding.PaddingLeft = UDim.new(0, 5)
 PremiumPadding.PaddingRight = UDim.new(0, 10)
 PremiumPadding.Parent = PremiumContent
 
 -- Contenu ESP
 local ESPContent = Instance.new("Frame")
-local ESPContent = Instance.new("ScrollingFrame")
 ESPContent.Name = "ESPContent"
 ESPContent.Size = UDim2.new(1, 0, 1, 0)
 ESPContent.BackgroundTransparency = 1
-ESPContent.BorderSizePixel = 0
-ESPContent.ScrollBarThickness = 4
-ESPContent.ScrollBarImageColor3 = Color3.fromRGB(0, 255, 100)
-ESPContent.CanvasSize = UDim2.new(0, 0, 0, 0)
 ESPContent.Visible = false
 ESPContent.Parent = ContentFrame
 
@@ -216,87 +258,18 @@ ESPPlaceholder.Size = UDim2.new(1, -20, 0, 100)
 ESPPlaceholder.Position = UDim2.new(0, 10, 0.5, -50)
 ESPPlaceholder.BackgroundTransparency = 1
 ESPPlaceholder.Text = "🚧 ESP Features\nComing Soon..."
+ESPPlaceholder.TextColor3 = Color3.fromRGB(100, 100, 120)
 ESPPlaceholder.TextColor3 = Color3.fromRGB(80, 80, 80)
 ESPPlaceholder.TextSize = 16
 ESPPlaceholder.Font = Enum.Font.GothamBold
 ESPPlaceholder.Parent = ESPContent
-local ESPLayout = Instance.new("UIListLayout")
-ESPLayout.Padding = UDim.new(0, 8)
-ESPLayout.SortOrder = Enum.SortOrder.LayoutOrder
-ESPLayout.Parent = ESPContent
-
-local ESPPadding = Instance.new("UIPadding")
-ESPPadding.PaddingTop = UDim.new(0, 10)
-ESPPadding.PaddingLeft = UDim.new(0, 5)
-ESPPadding.PaddingRight = UDim.new(0, 10)
-ESPPadding.Parent = ESPContent
-
--- Fonction pour créer un bouton ESP
-local function createESPButton(name, text, order)
-    local Button = Instance.new("TextButton")
-    Button.Name = name
-    Button.Size = UDim2.new(1, 0, 0, 45)
-    Button.BackgroundColor3 = Color3.fromRGB(20, 20, 20)
-    Button.BorderSizePixel = 0
-    Button.Text = ""
-    Button.LayoutOrder = order
-    Button.AutoButtonColor = false
-    Button.Parent = ESPContent
-    
-    local ButtonCorner = Instance.new("UICorner")
-    ButtonCorner.CornerRadius = UDim.new(0, 8)
-    ButtonCorner.Parent = Button
-    
-    local ButtonLabel = Instance.new("TextLabel")
-    ButtonLabel.Size = UDim2.new(1, -50, 1, 0)
-    ButtonLabel.Position = UDim2.new(0, 12, 0, 0)
-    ButtonLabel.BackgroundTransparency = 1
-    ButtonLabel.Text = text
-    ButtonLabel.TextColor3 = Color3.fromRGB(200, 200, 200)
-    ButtonLabel.TextSize = 14
-    ButtonLabel.Font = Enum.Font.Gotham
-    ButtonLabel.TextXAlignment = Enum.TextXAlignment.Left
-    ButtonLabel.Parent = Button
-    
-    local StatusCircle = Instance.new("Frame")
-    StatusCircle.Size = UDim2.new(0, 10, 0, 10)
-    StatusCircle.Position = UDim2.new(1, -22, 0.5, -5)
-    StatusCircle.BackgroundColor3 = Color3.fromRGB(50, 50, 50)
-    StatusCircle.BorderSizePixel = 0
-    StatusCircle.Parent = Button
-    
-    local CircleCorner = Instance.new("UICorner")
-    CircleCorner.CornerRadius = UDim.new(1, 0)
-    CircleCorner.Parent = StatusCircle
-    
-    Button.MouseEnter:Connect(function()
-        TweenService:Create(Button, TweenInfo.new(0.2), {
-            BackgroundColor3 = Color3.fromRGB(30, 30, 30)
-        }):Play()
-    end)
-    
-    Button.MouseLeave:Connect(function()
-        TweenService:Create(Button, TweenInfo.new(0.2), {
-            BackgroundColor3 = Color3.fromRGB(20, 20, 20)
-        }):Play()
-    end)
-    
-    return Button, StatusCircle
-end
-
--- Création du bouton ESP Player
-local ESPPlayerBtn, ESPPlayerCircle = createESPButton("ESPPlayer", "ESP Player", 1)
-
--- Auto-ajuster la taille du canvas ESP
-ESPLayout:GetPropertyChangedSignal("AbsoluteContentSize"):Connect(function()
-    ESPContent.CanvasSize = UDim2.new(0, 0, 0, ESPLayout.AbsoluteContentSize.Y + 20)
-end)
 
 -- Fonction pour créer un bouton de fonction
 local function createFeatureButton(name, text, order)
     local Button = Instance.new("TextButton")
     Button.Name = name
     Button.Size = UDim2.new(1, 0, 0, 45)
+    Button.BackgroundColor3 = Color3.fromRGB(25, 25, 40)
     Button.BackgroundColor3 = Color3.fromRGB(20, 20, 20)
     Button.BorderSizePixel = 0
     Button.Text = ""
@@ -313,6 +286,7 @@ local function createFeatureButton(name, text, order)
     ButtonLabel.Position = UDim2.new(0, 12, 0, 0)
     ButtonLabel.BackgroundTransparency = 1
     ButtonLabel.Text = text
+    ButtonLabel.TextColor3 = Color3.fromRGB(200, 200, 220)
     ButtonLabel.TextColor3 = Color3.fromRGB(200, 200, 200)
     ButtonLabel.TextSize = 14
     ButtonLabel.Font = Enum.Font.Gotham
@@ -322,6 +296,7 @@ local function createFeatureButton(name, text, order)
     local StatusCircle = Instance.new("Frame")
     StatusCircle.Size = UDim2.new(0, 10, 0, 10)
     StatusCircle.Position = UDim2.new(1, -22, 0.5, -5)
+    StatusCircle.BackgroundColor3 = Color3.fromRGB(60, 60, 80)
     StatusCircle.BackgroundColor3 = Color3.fromRGB(50, 50, 50)
     StatusCircle.BorderSizePixel = 0
     StatusCircle.Parent = Button
@@ -333,12 +308,14 @@ local function createFeatureButton(name, text, order)
     -- Effet hover
     Button.MouseEnter:Connect(function()
         TweenService:Create(Button, TweenInfo.new(0.2), {
+            BackgroundColor3 = Color3.fromRGB(35, 35, 50)
             BackgroundColor3 = Color3.fromRGB(30, 30, 30)
         }):Play()
     end)
 
     Button.MouseLeave:Connect(function()
         TweenService:Create(Button, TweenInfo.new(0.2), {
+            BackgroundColor3 = Color3.fromRGB(25, 25, 40)
             BackgroundColor3 = Color3.fromRGB(20, 20, 20)
         }):Play()
     end)
@@ -361,12 +338,17 @@ end)
 local currentTab = "Premium"
 local function switchTab(tab)
     if tab == "Premium" then
+        PremiumTab.BackgroundTransparency = 0
+        PremiumTab.BackgroundColor3 = Color3.fromRGB(138, 43, 226)
+        PremiumTab.TextColor3 = Color3.fromRGB(255, 255, 255)
         TweenService:Create(PremiumTab, TweenInfo.new(0.2), {
             BackgroundColor3 = Color3.fromRGB(0, 255, 100),
             TextColor3 = Color3.fromRGB(0, 0, 0)
         }):Play()
         PremiumContent.Visible = true
 
+        ESPTab.BackgroundTransparency = 1
+        ESPTab.TextColor3 = Color3.fromRGB(150, 150, 170)
         TweenService:Create(ESPTab, TweenInfo.new(0.2), {
             BackgroundColor3 = Color3.fromRGB(20, 20, 20),
             TextColor3 = Color3.fromRGB(120, 120, 120)
@@ -375,12 +357,17 @@ local function switchTab(tab)
 
         currentTab = "Premium"
     elseif tab == "ESP" then
+        ESPTab.BackgroundTransparency = 0
+        ESPTab.BackgroundColor3 = Color3.fromRGB(138, 43, 226)
+        ESPTab.TextColor3 = Color3.fromRGB(255, 255, 255)
         TweenService:Create(ESPTab, TweenInfo.new(0.2), {
             BackgroundColor3 = Color3.fromRGB(0, 255, 100),
             TextColor3 = Color3.fromRGB(0, 0, 0)
         }):Play()
         ESPContent.Visible = true
 
+        PremiumTab.BackgroundTransparency = 1
+        PremiumTab.TextColor3 = Color3.fromRGB(150, 150, 170)
         TweenService:Create(PremiumTab, TweenInfo.new(0.2), {
             BackgroundColor3 = Color3.fromRGB(20, 20, 20),
             TextColor3 = Color3.fromRGB(120, 120, 120)
@@ -413,6 +400,7 @@ end
 -- Fonction pour animer le cercle de statut
 local function activateButton(circle)
     TweenService:Create(circle, TweenInfo.new(0.3), {
+        BackgroundColor3 = Color3.fromRGB(138, 43, 226)
         BackgroundColor3 = Color3.fromRGB(0, 255, 100)
     }):Play()
 end
@@ -490,9 +478,11 @@ end)
 MainFrame.Size = UDim2.new(0, 0, 0, 0)
 wait(0.1)
 TweenService:Create(MainFrame, TweenInfo.new(0.5, Enum.EasingStyle.Back, Enum.EasingDirection.Out), {
+    Size = UDim2.new(0, 420, 0, 320)
     Size = UDim2.new(0, 450, 0, 380)
 }):Play()
 
+print("🔥 SLAYZHUB v4.2 LOADED!")
 print("🔥 SLAYZHUB v4.2 LOADED - GREEN EDITION!")
 }):Play()
 
