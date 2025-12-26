@@ -1,4 +1,4 @@
-- SLAYZHUB XENO GO v4.2 🔥 INTERFACE MODERNE PREMIUM
+-- SLAYZHUB XENO GO v4.2 🔥 INTERFACE MODERNE PREMIUM
 -- Design vert-noir moderne
 
 local Players = game:GetService("Players")
@@ -415,6 +415,9 @@ MainFrame.Size = UDim2.new(0, 0, 0, 0)
 wait(0.1)
 TweenService:Create(MainFrame, TweenInfo.new(0.5, Enum.EasingStyle.Back, Enum.EasingDirection.Out), {
     Size = UDim2.new(0, 450, 0, 380)
+}):Play()
+
+print("🔥 SLAYZHUB v4.2 LOADED - GREEN EDITION!")
 }):Play()
 
 print("🔥 SLAYZHUB v4.2 LOADED - GREEN EDITION!")
