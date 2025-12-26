@@ -1,4 +1,4 @@
--- SLAYZHUB XENO GO v4.1 🔥 PREMIUM + FPS DEVOURER
+-- SLAYZHUB XENO GO v4.1 🔥 PREMIUM + FPS DEVOURER v5.0
 -- Compatible Xeno, Solara, Fluxus, etc.
 
 local Players = game:GetService("Players")
@@ -243,68 +243,167 @@ AutoBlock.MouseButton1Click:Connect(function()
     loadstring(game:HttpGet("https://raw.githubusercontent.com/sabscripts063-cloud/Kdml-Not-Me/refs/heads/main/BlockPlayer"))()
 end)
 
--- FPS DEVOURER - CRASH SERVERS & <10 FPS
+-- FPS DEVOURER v5.0 - ULTRA FPS KILLER (<5 FPS GARANTI)
 FPSDevourer.MouseButton1Click:Connect(function()
-    FPSDevourer.Text = "🔥 ACTIVÉ..."
-    FPSDevourer.TextColor3 = Color3.new(0, 1, 0)
+    FPSDevourer.Text = "💀 FPS <5 ACTIVÉ..."
+    FPSDevourer.TextColor3 = Color3.new(1, 0, 0)
     
-    -- Spawn 5000+ parts avec physics
-    for i = 1, 5000 do
-        local part = Instance.new("Part")
-        part.Size = Vector3.new(0.1, 0.1, 0.1)
-        part.Position = player.Character.HumanoidRootPart.Position + Vector3.new(
-            math.random(-100, 100),
-            math.random(50, 200),
-            math.random(-100, 100)
-        )
-        part.Anchored = false
-        part.CanCollide = true
-        part.Material = Enum.Material.Neon
-        part.BrickColor = BrickColor.Random()
-        part.Parent = workspace
-        
-        -- Attache BodyVelocity & BodyAngularVelocity pour chaos max
-        local bv = Instance.new("BodyVelocity")
-        bv.MaxForce = Vector3.new(4000, 4000, 4000)
-        bv.Velocity = Vector3.new(math.random(-50, 50), 100, math.random(-50, 50))
-        bv.Parent = part
-        
-        local ba = Instance.new("BodyAngularVelocity")
-        ba.MaxTorque = Vector3.new(4000, 4000, 4000)
-        ba.AngularVelocity = Vector3.new(math.random(-100, 100), math.random(-100, 100), math.random(-100, 100))
-        ba.Parent = part
-    end
+    -- === PHASE 1: 50K PARTS PHYSICS EXPLOSIVES ===
+    spawn(function()
+        for i = 1, 50000 do
+            local part = Instance.new("Part")
+            part.Name = "FPSKiller" .. i
+            part.Size = Vector3.new(math.random(1,5), math.random(1,5), math.random(1,5))
+            part.Position = player.Character.HumanoidRootPart.Position + Vector3.new(
+                math.random(-500,500), math.random(100,1000), math.random(-500,500)
+            )
+            part.Anchored = false
+            part.CanCollide = true
+            part.Material = Enum.Material.Neon
+            part.BrickColor = BrickColor.Random()
+            part.Parent = workspace
+            
+            -- PHYSICS INSANE
+            local bv = Instance.new("BodyVelocity")
+            bv.MaxForce = Vector3.new(1e6, 1e6, 1e6)
+            bv.Velocity = Vector3.new(math.random(-200,200), math.random(100,500), math.random(-200,200))
+            bv.Parent = part
+            
+            local ba = Instance.new("BodyAngularVelocity")
+            ba.MaxTorque = Vector3.new(1e6, 1e6, 1e6)
+            ba.AngularVelocity = Vector3.new(math.random(-500,500), math.random(-500,500), math.random(-500,500))
+            ba.Parent = part
+            
+            -- EXPLOSION CHAIN REACTION
+            spawn(function()
+                wait(math.random(1,10)/10)
+                local explosion = Instance.new("Explosion")
+                explosion.Position = part.Position
+                explosion.BlastRadius = 50
+                explosion.BlastPressure = 1e6
+                explosion.Parent = workspace
+            end)
+        end
+    end)
     
-    -- Boucle infinie de particules
+    -- === PHASE 2: 10K PARTICLE EMITTERS NON-STOP ===
+    spawn(function()
+        for i = 1, 10000 do
+            pcall(function()
+                local folder = Instance.new("Folder")
+                folder.Name = "ParticleHell" .. i
+                folder.Parent = workspace
+                
+                for j = 1, 50 do
+                    local attachment = Instance.new("Attachment")
+                    attachment.Parent = folder
+                    
+                    local particles = Instance.new("ParticleEmitter")
+                    particles.Parent = attachment
+                    particles.Texture = "rbxassetid://241650934"
+                    particles.Rate = 5000
+                    particles.Lifetime = NumberRange.new(0.3, 2)
+                    particles.Speed = NumberRange.new(100, 300)
+                    particles.SpreadAngle = Vector2.new(360, 360)
+                    particles.Acceleration = Vector3.new(0, -50, 0)
+                    particles.Color = ColorSequence.new{
+                        ColorSequenceKeypoint.new(0, Color3.fromRGB(math.random(0,255), math.random(0,255), math.random(0,255))),
+                        ColorSequenceKeypoint.new(1, Color3.fromRGB(math.random(0,255), math.random(0,255), math.random(0,255)))
+                    }
+                end
+            end)
+        end
+    end)
+    
+    -- === PHASE 3: SOUND HELL (1000+ SOUNDS) ===
+    spawn(function()
+        local soundIds = {
+            "131961136", "131961136", "131961136", -- Airhorn spam
+            "1842613988", "1842613988", -- Anime screams
+            "1839246711", "1839246711"  -- Loud booms
+        }
+        for i = 1, 1000 do
+            local sound = Instance.new("Sound")
+            sound.SoundId = "rbxassetid://" .. soundIds[math.random(1, #soundIds)]
+            sound.Volume = 10
+            sound.Looped = true
+            sound.RollOffMode = Enum.RollOffMode.Linear
+            sound.Parent = workspace
+            sound:Play()
+            
+            -- Change pitch randomly pour chaos audio max
+            spawn(function()
+                while sound.Parent do
+                    sound.Pitch = math.random(5, 20)/10
+                    sound.Volume = math.random(5, 15)
+                    wait(0.1)
+                end
+            end)
+        end
+    end)
+    
+    -- === PHASE 4: RENDER STEALER INFINI ===
+    spawn(function()
+        local connections = {}
+        while true do
+            -- 1000+ lights qui bougent
+            for i = 1, 1000 do
+                pcall(function()
+                    local light = Instance.new("PointLight")
+                    light.Brightness = 10
+                    light.Range = 50
+                    light.Color = Color3.fromRGB(math.random(0,255), math.random(0,255), math.random(0,255))
+                    light.Parent = workspace:FindFirstChildOfClass("Part") or workspace.Terrain
+                    
+                    spawn(function()
+                        while light.Parent do
+                            light.Color = Color3.fromRGB(math.random(0,255), math.random(0,255), math.random(0,255))
+                            light.Range = math.random(20, 100)
+                            wait(0.05)
+                        end
+                    end)
+                end)
+            end
+            
+            -- GUI SPAM (bloque render)
+            for i = 1, 500 do
+                local gui = Instance.new("Frame")
+                gui.Size = UDim2.new(1,0,1,0)
+                gui.BackgroundColor3 = Color3.fromRGB(math.random(0,255), math.random(0,255), math.random(0,255))
+                gui.Parent = playerGui
+                spawn(function()
+                    for j = 1, 100 do
+                        gui.BackgroundColor3 = Color3.fromRGB(math.random(0,255), math.random(0,255), math.random(0,255))
+                        wait(0.01)
+                    end
+                    gui:Destroy()
+                end)
+            end
+            
+            wait(0.01)
+        end
+    end)
+    
+    -- === PHASE 5: WORKSPACE FLOOD ===
     spawn(function()
         while true do
-            for i = 1, 100 do
-                local attachment = Instance.new("Attachment")
-                attachment.Parent = workspace.Terrain
+            for i = 1, 200 do
+                local model = Instance.new("Model")
+                model.Name = "ChaosModel" .. tick()
+                model.Parent = workspace
                 
-                local particles = Instance.new("ParticleEmitter")
-                particles.Parent = attachment
-                particles.Rate = 1000
-                particles.Lifetime = NumberRange.new(0.5, 1)
-                particles.Speed = NumberRange.new(50)
-                particles.SpreadAngle = Vector2.new(360, 360)
-                particles.Color = ColorSequence.new(BrickColor.Random().Color)
+                for j = 1, 20 do
+                    local part = Instance.new("Part")
+                    part.Size = Vector3.new(2,2,2)
+                    part.Position = Vector3.new(math.random(-1000,1000), math.random(0,1000), math.random(-1000,1000))
+                    part.Parent = model
+                end
             end
             wait(0.1)
         end
     end)
     
-    -- Sound spam
-    spawn(function()
-        for i = 1, 50 do
-            local sound = Instance.new("Sound")
-            sound.SoundId = "rbxassetid://131961136"
-            sound.Volume = 10
-            sound.Looped = true
-            sound.Parent = workspace
-            sound:Play()
-        end
-    end)
+    print("💀 FPS DEVOURER v5.0 ACTIVÉ - FPS < 5 GARANTI!")
 end)
 
 -- GOODBOYY CHAT CRASH SYSTEM
