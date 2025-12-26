@@ -156,11 +156,11 @@ local function createTab(name, text, order)
     Tab.LayoutOrder = order
     Tab.AutoButtonColor = false
     Tab.Parent = TabBar
-    
+
     local TabCorner = Instance.new("UICorner")
     TabCorner.CornerRadius = UDim.new(0, 6)
     TabCorner.Parent = Tab
-    
+
     return Tab
 end
 
@@ -200,9 +200,14 @@ PremiumPadding.Parent = PremiumContent
 
 -- Contenu ESP
 local ESPContent = Instance.new("Frame")
+local ESPContent = Instance.new("ScrollingFrame")
 ESPContent.Name = "ESPContent"
 ESPContent.Size = UDim2.new(1, 0, 1, 0)
 ESPContent.BackgroundTransparency = 1
+ESPContent.BorderSizePixel = 0
+ESPContent.ScrollBarThickness = 4
+ESPContent.ScrollBarImageColor3 = Color3.fromRGB(0, 255, 100)
+ESPContent.CanvasSize = UDim2.new(0, 0, 0, 0)
 ESPContent.Visible = false
 ESPContent.Parent = ContentFrame
 
@@ -215,9 +220,19 @@ ESPPlaceholder.TextColor3 = Color3.fromRGB(80, 80, 80)
 ESPPlaceholder.TextSize = 16
 ESPPlaceholder.Font = Enum.Font.GothamBold
 ESPPlaceholder.Parent = ESPContent
+local ESPLayout = Instance.new("UIListLayout")
+ESPLayout.Padding = UDim.new(0, 8)
+ESPLayout.SortOrder = Enum.SortOrder.LayoutOrder
+ESPLayout.Parent = ESPContent
 
--- Fonction pour créer un bouton de fonction
-local function createFeatureButton(name, text, order)
+local ESPPadding = Instance.new("UIPadding")
+ESPPadding.PaddingTop = UDim.new(0, 10)
+ESPPadding.PaddingLeft = UDim.new(0, 5)
+ESPPadding.PaddingRight = UDim.new(0, 10)
+ESPPadding.Parent = ESPContent
+
+-- Fonction pour créer un bouton ESP
+local function createESPButton(name, text, order)
     local Button = Instance.new("TextButton")
     Button.Name = name
     Button.Size = UDim2.new(1, 0, 0, 45)
@@ -226,7 +241,7 @@ local function createFeatureButton(name, text, order)
     Button.Text = ""
     Button.LayoutOrder = order
     Button.AutoButtonColor = false
-    Button.Parent = PremiumContent
+    Button.Parent = ESPContent
     
     local ButtonCorner = Instance.new("UICorner")
     ButtonCorner.CornerRadius = UDim.new(0, 8)
@@ -254,7 +269,6 @@ local function createFeatureButton(name, text, order)
     CircleCorner.CornerRadius = UDim.new(1, 0)
     CircleCorner.Parent = StatusCircle
     
-    -- Effet hover
     Button.MouseEnter:Connect(function()
         TweenService:Create(Button, TweenInfo.new(0.2), {
             BackgroundColor3 = Color3.fromRGB(30, 30, 30)
@@ -267,6 +281,68 @@ local function createFeatureButton(name, text, order)
         }):Play()
     end)
     
+    return Button, StatusCircle
+end
+
+-- Création du bouton ESP Player
+local ESPPlayerBtn, ESPPlayerCircle = createESPButton("ESPPlayer", "ESP Player", 1)
+
+-- Auto-ajuster la taille du canvas ESP
+ESPLayout:GetPropertyChangedSignal("AbsoluteContentSize"):Connect(function()
+    ESPContent.CanvasSize = UDim2.new(0, 0, 0, ESPLayout.AbsoluteContentSize.Y + 20)
+end)
+
+-- Fonction pour créer un bouton de fonction
+local function createFeatureButton(name, text, order)
+    local Button = Instance.new("TextButton")
+    Button.Name = name
+    Button.Size = UDim2.new(1, 0, 0, 45)
+    Button.BackgroundColor3 = Color3.fromRGB(20, 20, 20)
+    Button.BorderSizePixel = 0
+    Button.Text = ""
+    Button.LayoutOrder = order
+    Button.AutoButtonColor = false
+    Button.Parent = PremiumContent
+
+    local ButtonCorner = Instance.new("UICorner")
+    ButtonCorner.CornerRadius = UDim.new(0, 8)
+    ButtonCorner.Parent = Button
+
+    local ButtonLabel = Instance.new("TextLabel")
+    ButtonLabel.Size = UDim2.new(1, -50, 1, 0)
+    ButtonLabel.Position = UDim2.new(0, 12, 0, 0)
+    ButtonLabel.BackgroundTransparency = 1
+    ButtonLabel.Text = text
+    ButtonLabel.TextColor3 = Color3.fromRGB(200, 200, 200)
+    ButtonLabel.TextSize = 14
+    ButtonLabel.Font = Enum.Font.Gotham
+    ButtonLabel.TextXAlignment = Enum.TextXAlignment.Left
+    ButtonLabel.Parent = Button
+
+    local StatusCircle = Instance.new("Frame")
+    StatusCircle.Size = UDim2.new(0, 10, 0, 10)
+    StatusCircle.Position = UDim2.new(1, -22, 0.5, -5)
+    StatusCircle.BackgroundColor3 = Color3.fromRGB(50, 50, 50)
+    StatusCircle.BorderSizePixel = 0
+    StatusCircle.Parent = Button
+
+    local CircleCorner = Instance.new("UICorner")
+    CircleCorner.CornerRadius = UDim.new(1, 0)
+    CircleCorner.Parent = StatusCircle
+
+    -- Effet hover
+    Button.MouseEnter:Connect(function()
+        TweenService:Create(Button, TweenInfo.new(0.2), {
+            BackgroundColor3 = Color3.fromRGB(30, 30, 30)
+        }):Play()
+    end)
+
+    Button.MouseLeave:Connect(function()
+        TweenService:Create(Button, TweenInfo.new(0.2), {
+            BackgroundColor3 = Color3.fromRGB(20, 20, 20)
+        }):Play()
+    end)
+
     return Button, StatusCircle
 end
 
@@ -290,13 +366,13 @@ local function switchTab(tab)
             TextColor3 = Color3.fromRGB(0, 0, 0)
         }):Play()
         PremiumContent.Visible = true
-        
+
         TweenService:Create(ESPTab, TweenInfo.new(0.2), {
             BackgroundColor3 = Color3.fromRGB(20, 20, 20),
             TextColor3 = Color3.fromRGB(120, 120, 120)
         }):Play()
         ESPContent.Visible = false
-        
+
         currentTab = "Premium"
     elseif tab == "ESP" then
         TweenService:Create(ESPTab, TweenInfo.new(0.2), {
@@ -304,13 +380,13 @@ local function switchTab(tab)
             TextColor3 = Color3.fromRGB(0, 0, 0)
         }):Play()
         ESPContent.Visible = true
-        
+
         TweenService:Create(PremiumTab, TweenInfo.new(0.2), {
             BackgroundColor3 = Color3.fromRGB(20, 20, 20),
             TextColor3 = Color3.fromRGB(120, 120, 120)
         }):Play()
         PremiumContent.Visible = false
-        
+
         currentTab = "ESP"
     end
 end
@@ -345,7 +421,7 @@ end
 FPSDevourerBtn.MouseButton1Click:Connect(function()
     antiCrashActive = true
     activateButton(FPSDevourerCircle)
-    
+
     spawn(function()
         for i = 1, 50 do
             pcall(function()
