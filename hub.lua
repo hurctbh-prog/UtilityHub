@@ -1,12 +1,12 @@
--- Lemon Freezer UI - LocalScript
--- Place dans StarterGui > ScreenGui > LocalScript
+-- Lemon Freezer v1.3.1 - Compatible Zeno Executor
+-- Script complet avec fonctionnalités
 
 local Players = game:GetService("Players")
-local TweenService = game:GetService("TweenService")
+local RunService = game:GetService("RunService")
+local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local player = Players.LocalPlayer
-local playerGui = player:WaitForChild("PlayerGui")
 
--- Configuration
+-- Configuration globale
 local Config = {
     StarterPower = 0.25,
     MainPower = 0.5,
@@ -16,432 +16,472 @@ local Config = {
     LagAfterSteal = false
 }
 
--- Créer le ScreenGui principal
+local connections = {}
+
+-- Fonctions principales
+local function createServerLag(power, targetPlayer)
+    -- Méthode 1: Spam de RemoteEvents
+    for _, v in pairs(ReplicatedStorage:GetDescendants()) do
+        if v:IsA("RemoteEvent") then
+            for i = 1, power * 50 do
+                pcall(function()
+                    v:FireServer(string.rep("a", 1000))
+                end)
+            end
+        end
+    end
+    
+    -- Méthode 2: Création d'instances
+    spawn(function()
+        for i = 1, power * 100 do
+            local part = Instance.new("Part")
+            part.Anchored = true
+            part.Size = Vector3.new(0.1, 0.1, 0.1)
+            part.Transparency = 1
+            part.CanCollide = false
+            if targetPlayer and targetPlayer.Character then
+                part.Position = targetPlayer.Character.HumanoidRootPart.Position
+            end
+            game:GetService("Debris"):AddItem(part, 0.1)
+        end
+    end)
+end
+
+local function getHighestPlayer()
+    local highest = nil
+    local highestCash = 0
+    
+    for _, plr in pairs(Players:GetPlayers()) do
+        if plr ~= player then
+            local leaderstats = plr:FindFirstChild("leaderstats")
+            if leaderstats then
+                local cash = leaderstats:FindFirstChild("Cash") or leaderstats:FindFirstChild("Money") or leaderstats:FindFirstChild("coins")
+                if cash and cash.Value > highestCash then
+                    highestCash = cash.Value
+                    highest = plr
+                end
+            end
+        end
+    end
+    
+    return highest
+end
+
+local function teleportToPlayer(targetPlayer)
+    if not targetPlayer or not targetPlayer.Character then 
+        warn("Joueur cible invalide")
+        return 
+    end
+    
+    local targetRoot = targetPlayer.Character:FindFirstChild("HumanoidRootPart")
+    local playerChar = player.Character
+    local playerRoot = playerChar and playerChar:FindFirstChild("HumanoidRootPart")
+    
+    if targetRoot and playerRoot then
+        playerRoot.CFrame = targetRoot.CFrame * CFrame.new(5, 0, 5)
+        print("[Lemon Freezer] Téléporté à " .. targetPlayer.Name)
+    end
+end
+
+local function activateStarterLag()
+    if Config.StarterActive then
+        local highest = getHighestPlayer()
+        if highest then
+            print("[Starter Lag] Activation sur " .. highest.Name)
+            createServerLag(Config.StarterPower, highest)
+        end
+    end
+end
+
+local function activateMainLag()
+    if Config.MainActive then
+        local highest = getHighestPlayer()
+        if highest then
+            print("[Main Lag] Activation sur " .. highest.Name)
+            createServerLag(Config.MainPower, highest)
+            
+            if Config.LagAfterSteal then
+                wait(Config.Duration)
+                createServerLag(Config.MainPower * 0.5, highest)
+            end
+        end
+    end
+end
+
+local function stopAll()
+    Config.StarterActive = false
+    Config.MainActive = false
+    
+    for _, conn in pairs(connections) do
+        if conn then conn:Disconnect() end
+    end
+    connections = {}
+    
+    print("[Lemon Freezer] Tous les effets arrêtés")
+end
+
+-- Création de l'interface
 local screenGui = Instance.new("ScreenGui")
-screenGui.Name = "LemonFreezerUI"
+screenGui.Name = "LemonFreezerUI_v131"
 screenGui.ResetOnSpawn = false
-screenGui.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
-screenGui.Parent = playerGui
+screenGui.IgnoreGuiInset = true
+
+-- Protection pour Zeno
+pcall(function()
+    if syn and syn.protect_gui then
+        syn.protect_gui(screenGui)
+    end
+end)
+
+screenGui.Parent = player.PlayerGui
 
 -- Frame principale
-local mainFrame = Instance.new("Frame")
-mainFrame.Name = "MainFrame"
-mainFrame.Size = UDim2.new(0, 650, 0, 450)
-mainFrame.Position = UDim2.new(0.5, -325, 0.5, -225)
-mainFrame.BackgroundColor3 = Color3.fromRGB(10, 10, 10)
-mainFrame.BorderSizePixel = 0
-mainFrame.Parent = screenGui
+local main = Instance.new("Frame")
+main.Name = "Main"
+main.Size = UDim2.new(0, 650, 0, 450)
+main.Position = UDim2.new(0.5, -325, 0.5, -225)
+main.BackgroundColor3 = Color3.fromRGB(10, 10, 10)
+main.BorderSizePixel = 0
+main.Active = true
+main.Draggable = true
+main.Parent = screenGui
 
-local mainCorner = Instance.new("UICorner")
-mainCorner.CornerRadius = UDim.new(0, 10)
-mainCorner.Parent = mainFrame
-
-local mainBorder = Instance.new("UIStroke")
-mainBorder.Color = Color3.fromRGB(255, 140, 0)
-mainBorder.Thickness = 4
-mainBorder.Parent = mainFrame
+Instance.new("UICorner", main).CornerRadius = UDim.new(0, 10)
+local stroke = Instance.new("UIStroke", main)
+stroke.Color = Color3.fromRGB(255, 140, 0)
+stroke.Thickness = 4
 
 -- Header
-local header = Instance.new("Frame")
-header.Name = "Header"
-header.Size = UDim2.new(1, -20, 0, 50)
+local header = Instance.new("TextLabel")
+header.Size = UDim2.new(1, -20, 0, 40)
 header.Position = UDim2.new(0, 10, 0, 10)
 header.BackgroundTransparency = 1
-header.Parent = mainFrame
+header.Text = "⚡ LEMON FREEZER - Dual Mode v1.3.1"
+header.TextColor3 = Color3.fromRGB(255, 140, 0)
+header.TextSize = 22
+header.Font = Enum.Font.GothamBold
+header.TextXAlignment = Enum.TextXAlignment.Left
+header.Parent = main
 
-local headerIcon = Instance.new("TextLabel")
-headerIcon.Size = UDim2.new(0, 30, 0, 30)
-headerIcon.Position = UDim2.new(0, 0, 0, 10)
-headerIcon.BackgroundTransparency = 1
-headerIcon.Text = "⚡"
-headerIcon.TextSize = 28
-headerIcon.TextColor3 = Color3.fromRGB(255, 140, 0)
-headerIcon.Parent = header
+-- Container panels
+local panelContainer = Instance.new("Frame")
+panelContainer.Size = UDim2.new(1, -20, 0, 220)
+panelContainer.Position = UDim2.new(0, 10, 0, 60)
+panelContainer.BackgroundTransparency = 1
+panelContainer.Parent = main
 
-local headerTitle = Instance.new("TextLabel")
-headerTitle.Size = UDim2.new(1, -40, 1, 0)
-headerTitle.Position = UDim2.new(0, 40, 0, 0)
-headerTitle.BackgroundTransparency = 1
-headerTitle.Text = "LEMON FREEZER - Dual Mode"
-headerTitle.TextSize = 24
-headerTitle.TextColor3 = Color3.fromRGB(255, 140, 0)
-headerTitle.Font = Enum.Font.GothamBold
-headerTitle.TextXAlignment = Enum.TextXAlignment.Left
-headerTitle.Parent = header
-
--- Container pour les deux panels
-local panelsContainer = Instance.new("Frame")
-panelsContainer.Name = "PanelsContainer"
-panelsContainer.Size = UDim2.new(1, -20, 0, 220)
-panelsContainer.Position = UDim2.new(0, 10, 0, 70)
-panelsContainer.BackgroundTransparency = 1
-panelsContainer.Parent = mainFrame
-
--- STARTER LAG Panel (Gauche)
+-- STARTER PANEL
 local starterPanel = Instance.new("Frame")
-starterPanel.Name = "StarterPanel"
 starterPanel.Size = UDim2.new(0.48, 0, 1, 0)
-starterPanel.Position = UDim2.new(0, 0, 0, 0)
 starterPanel.BackgroundColor3 = Color3.fromRGB(15, 15, 15)
 starterPanel.BorderSizePixel = 0
-starterPanel.Parent = panelsContainer
+starterPanel.Parent = panelContainer
 
-local starterCorner = Instance.new("UICorner")
-starterCorner.CornerRadius = UDim.new(0, 8)
-starterCorner.Parent = starterPanel
+Instance.new("UICorner", starterPanel).CornerRadius = UDim.new(0, 8)
+local starterStroke = Instance.new("UIStroke", starterPanel)
+starterStroke.Color = Color3.fromRGB(0, 255, 0)
+starterStroke.Thickness = 2
 
-local starterBorder = Instance.new("UIStroke")
-starterBorder.Color = Color3.fromRGB(0, 255, 0)
-starterBorder.Thickness = 2
-starterBorder.Parent = starterPanel
+local starterTitle = Instance.new("TextLabel")
+starterTitle.Size = UDim2.new(1, -20, 0, 25)
+starterTitle.Position = UDim2.new(0, 10, 0, 10)
+starterTitle.BackgroundTransparency = 1
+starterTitle.Text = "⚡ STARTER LAG"
+starterTitle.TextColor3 = Color3.fromRGB(100, 255, 100)
+starterTitle.TextSize = 16
+starterTitle.Font = Enum.Font.GothamBold
+starterTitle.TextXAlignment = Enum.TextXAlignment.Left
+starterTitle.Parent = starterPanel
 
--- Starter Header
-local starterHeader = Instance.new("TextLabel")
-starterHeader.Size = UDim2.new(1, -20, 0, 30)
-starterHeader.Position = UDim2.new(0, 10, 0, 10)
-starterHeader.BackgroundTransparency = 1
-starterHeader.Text = "⚡ STARTER LAG"
-starterHeader.TextSize = 18
-starterHeader.TextColor3 = Color3.fromRGB(100, 255, 100)
-starterHeader.Font = Enum.Font.GothamBold
-starterHeader.TextXAlignment = Enum.TextXAlignment.Left
-starterHeader.Parent = starterPanel
-
--- Starter Power Label
 local starterPowerLabel = Instance.new("TextLabel")
-starterPowerLabel.Size = UDim2.new(1, -20, 0, 20)
-starterPowerLabel.Position = UDim2.new(0, 10, 0, 45)
+starterPowerLabel.Size = UDim2.new(1, -20, 0, 18)
+starterPowerLabel.Position = UDim2.new(0, 10, 0, 40)
 starterPowerLabel.BackgroundTransparency = 1
 starterPowerLabel.Text = "Power (0.01-100):"
-starterPowerLabel.TextSize = 14
 starterPowerLabel.TextColor3 = Color3.fromRGB(150, 150, 150)
+starterPowerLabel.TextSize = 12
 starterPowerLabel.Font = Enum.Font.Gotham
 starterPowerLabel.TextXAlignment = Enum.TextXAlignment.Left
 starterPowerLabel.Parent = starterPanel
 
--- Starter Power Input
-local starterPowerInput = Instance.new("TextBox")
-starterPowerInput.Name = "PowerInput"
-starterPowerInput.Size = UDim2.new(1, -20, 0, 35)
-starterPowerInput.Position = UDim2.new(0, 10, 0, 70)
-starterPowerInput.BackgroundColor3 = Color3.fromRGB(25, 25, 25)
-starterPowerInput.BorderSizePixel = 0
-starterPowerInput.Text = tostring(Config.StarterPower)
-starterPowerInput.TextSize = 20
-starterPowerInput.TextColor3 = Color3.fromRGB(255, 200, 0)
-starterPowerInput.Font = Enum.Font.GothamBold
-starterPowerInput.PlaceholderText = "0.25"
-starterPowerInput.Parent = starterPanel
+local starterInput = Instance.new("TextBox")
+starterInput.Size = UDim2.new(1, -20, 0, 32)
+starterInput.Position = UDim2.new(0, 10, 0, 62)
+starterInput.BackgroundColor3 = Color3.fromRGB(25, 25, 25)
+starterInput.BorderSizePixel = 0
+starterInput.Text = "0.25"
+starterInput.TextColor3 = Color3.fromRGB(255, 200, 0)
+starterInput.TextSize = 18
+starterInput.Font = Enum.Font.GothamBold
+starterInput.Parent = starterPanel
+Instance.new("UICorner", starterInput).CornerRadius = UDim.new(0, 6)
 
-local starterInputCorner = Instance.new("UICorner")
-starterInputCorner.CornerRadius = UDim.new(0, 6)
-starterInputCorner.Parent = starterPowerInput
+local starterBtn = Instance.new("TextButton")
+starterBtn.Size = UDim2.new(1, -20, 0, 35)
+starterBtn.Position = UDim2.new(0, 10, 0, 105)
+starterBtn.BackgroundColor3 = Color3.fromRGB(0, 200, 0)
+starterBtn.BorderSizePixel = 0
+starterBtn.Text = "⚡ ACTIVATE"
+starterBtn.TextColor3 = Color3.white
+starterBtn.TextSize = 14
+starterBtn.Font = Enum.Font.GothamBold
+starterBtn.Parent = starterPanel
+Instance.new("UICorner", starterBtn).CornerRadius = UDim.new(0, 6)
 
--- Starter Activate Button
-local starterActivateBtn = Instance.new("TextButton")
-starterActivateBtn.Name = "ActivateButton"
-starterActivateBtn.Size = UDim2.new(1, -20, 0, 35)
-starterActivateBtn.Position = UDim2.new(0, 10, 0, 115)
-starterActivateBtn.BackgroundColor3 = Color3.fromRGB(0, 200, 0)
-starterActivateBtn.BorderSizePixel = 0
-starterActivateBtn.Text = "⚡ ACTIVATE"
-starterActivateBtn.TextSize = 16
-starterActivateBtn.TextColor3 = Color3.fromRGB(255, 255, 255)
-starterActivateBtn.Font = Enum.Font.GothamBold
-starterActivateBtn.Parent = starterPanel
-
-local starterBtnCorner = Instance.new("UICorner")
-starterBtnCorner.CornerRadius = UDim.new(0, 6)
-starterBtnCorner.Parent = starterActivateBtn
-
--- Starter TP Button
 local starterTPBtn = Instance.new("TextButton")
-starterTPBtn.Name = "TPButton"
-starterTPBtn.Size = UDim2.new(1, -20, 0, 35)
-starterTPBtn.Position = UDim2.new(0, 10, 0, 160)
+starterTPBtn.Size = UDim2.new(1, -20, 0, 32)
+starterTPBtn.Position = UDim2.new(0, 10, 0, 148)
 starterTPBtn.BackgroundColor3 = Color3.fromRGB(130, 50, 200)
 starterTPBtn.BorderSizePixel = 0
 starterTPBtn.Text = "⚡ START + TP HIGHEST"
-starterTPBtn.TextSize = 14
-starterTPBtn.TextColor3 = Color3.fromRGB(255, 255, 255)
+starterTPBtn.TextColor3 = Color3.white
+starterTPBtn.TextSize = 12
 starterTPBtn.Font = Enum.Font.GothamBold
 starterTPBtn.Parent = starterPanel
+Instance.new("UICorner", starterTPBtn).CornerRadius = UDim.new(0, 6)
 
-local starterTPCorner = Instance.new("UICorner")
-starterTPCorner.CornerRadius = UDim.new(0, 6)
-starterTPCorner.Parent = starterTPBtn
-
--- MAIN LAG Panel (Droite)
+-- MAIN PANEL
 local mainPanel = Instance.new("Frame")
-mainPanel.Name = "MainPanel"
 mainPanel.Size = UDim2.new(0.48, 0, 1, 0)
 mainPanel.Position = UDim2.new(0.52, 0, 0, 0)
 mainPanel.BackgroundColor3 = Color3.fromRGB(15, 15, 15)
 mainPanel.BorderSizePixel = 0
-mainPanel.Parent = panelsContainer
+mainPanel.Parent = panelContainer
 
-local mainPanelCorner = Instance.new("UICorner")
-mainPanelCorner.CornerRadius = UDim.new(0, 8)
-mainPanelCorner.Parent = mainPanel
+Instance.new("UICorner", mainPanel).CornerRadius = UDim.new(0, 8)
+local mainStroke = Instance.new("UIStroke", mainPanel)
+mainStroke.Color = Color3.fromRGB(255, 80, 80)
+mainStroke.Thickness = 2
 
-local mainPanelBorder = Instance.new("UIStroke")
-mainPanelBorder.Color = Color3.fromRGB(255, 80, 80)
-mainPanelBorder.Thickness = 2
-mainPanelBorder.Parent = mainPanel
+local mainTitle = Instance.new("TextLabel")
+mainTitle.Size = UDim2.new(1, -20, 0, 25)
+mainTitle.Position = UDim2.new(0, 10, 0, 10)
+mainTitle.BackgroundTransparency = 1
+mainTitle.Text = "🔥 MAIN LAG"
+mainTitle.TextColor3 = Color3.fromRGB(255, 140, 0)
+mainTitle.TextSize = 16
+mainTitle.Font = Enum.Font.GothamBold
+mainTitle.TextXAlignment = Enum.TextXAlignment.Left
+mainTitle.Parent = mainPanel
 
--- Main Header
-local mainHeader = Instance.new("TextLabel")
-mainHeader.Size = UDim2.new(1, -20, 0, 30)
-mainHeader.Position = UDim2.new(0, 10, 0, 10)
-mainHeader.BackgroundTransparency = 1
-mainHeader.Text = "🔥 MAIN LAG"
-mainHeader.TextSize = 18
-mainHeader.TextColor3 = Color3.fromRGB(255, 140, 0)
-mainHeader.Font = Enum.Font.GothamBold
-mainHeader.TextXAlignment = Enum.TextXAlignment.Left
-mainHeader.Parent = mainPanel
-
--- Main Power Label
 local mainPowerLabel = Instance.new("TextLabel")
-mainPowerLabel.Size = UDim2.new(1, -20, 0, 20)
-mainPowerLabel.Position = UDim2.new(0, 10, 0, 45)
+mainPowerLabel.Size = UDim2.new(1, -20, 0, 18)
+mainPowerLabel.Position = UDim2.new(0, 10, 0, 40)
 mainPowerLabel.BackgroundTransparency = 1
 mainPowerLabel.Text = "Power (0.01-100):"
-mainPowerLabel.TextSize = 14
 mainPowerLabel.TextColor3 = Color3.fromRGB(150, 150, 150)
+mainPowerLabel.TextSize = 12
 mainPowerLabel.Font = Enum.Font.Gotham
 mainPowerLabel.TextXAlignment = Enum.TextXAlignment.Left
 mainPowerLabel.Parent = mainPanel
 
--- Main Power Input
-local mainPowerInput = Instance.new("TextBox")
-mainPowerInput.Name = "PowerInput"
-mainPowerInput.Size = UDim2.new(1, -20, 0, 35)
-mainPowerInput.Position = UDim2.new(0, 10, 0, 70)
-mainPowerInput.BackgroundColor3 = Color3.fromRGB(25, 25, 25)
-mainPowerInput.BorderSizePixel = 0
-mainPowerInput.Text = tostring(Config.MainPower)
-mainPowerInput.TextSize = 20
-mainPowerInput.TextColor3 = Color3.fromRGB(255, 200, 0)
-mainPowerInput.Font = Enum.Font.GothamBold
-mainPowerInput.PlaceholderText = "0.5"
-mainPowerInput.Parent = mainPanel
+local mainInput = Instance.new("TextBox")
+mainInput.Size = UDim2.new(1, -20, 0, 32)
+mainInput.Position = UDim2.new(0, 10, 0, 62)
+mainInput.BackgroundColor3 = Color3.fromRGB(25, 25, 25)
+mainInput.BorderSizePixel = 0
+mainInput.Text = "0.5"
+mainInput.TextColor3 = Color3.fromRGB(255, 200, 0)
+mainInput.TextSize = 18
+mainInput.Font = Enum.Font.GothamBold
+mainInput.Parent = mainPanel
+Instance.new("UICorner", mainInput).CornerRadius = UDim.new(0, 6)
 
-local mainInputCorner = Instance.new("UICorner")
-mainInputCorner.CornerRadius = UDim.new(0, 6)
-mainInputCorner.Parent = mainPowerInput
+local mainBtn = Instance.new("TextButton")
+mainBtn.Size = UDim2.new(1, -20, 0, 35)
+mainBtn.Position = UDim2.new(0, 10, 0, 105)
+mainBtn.BackgroundColor3 = Color3.fromRGB(255, 80, 80)
+mainBtn.BorderSizePixel = 0
+mainBtn.Text = "⚡ ACTIVATE"
+mainBtn.TextColor3 = Color3.white
+mainBtn.TextSize = 14
+mainBtn.Font = Enum.Font.GothamBold
+mainBtn.Parent = mainPanel
+Instance.new("UICorner", mainBtn).CornerRadius = UDim.new(0, 6)
 
--- Main Activate Button
-local mainActivateBtn = Instance.new("TextButton")
-mainActivateBtn.Name = "ActivateButton"
-mainActivateBtn.Size = UDim2.new(1, -20, 0, 35)
-mainActivateBtn.Position = UDim2.new(0, 10, 0, 115)
-mainActivateBtn.BackgroundColor3 = Color3.fromRGB(255, 80, 80)
-mainActivateBtn.BorderSizePixel = 0
-mainActivateBtn.Text = "⚡ ACTIVATE"
-mainActivateBtn.TextSize = 16
-mainActivateBtn.TextColor3 = Color3.fromRGB(255, 255, 255)
-mainActivateBtn.Font = Enum.Font.GothamBold
-mainActivateBtn.Parent = mainPanel
-
-local mainBtnCorner = Instance.new("UICorner")
-mainBtnCorner.CornerRadius = UDim.new(0, 6)
-mainBtnCorner.Parent = mainActivateBtn
-
--- Options Container
-local optionsContainer = Instance.new("Frame")
-optionsContainer.Size = UDim2.new(1, -20, 0, 35)
-optionsContainer.Position = UDim2.new(0, 10, 0, 160)
-optionsContainer.BackgroundTransparency = 1
-optionsContainer.Parent = mainPanel
-
--- Lag After Steal
+-- Options
 local lagAfterLabel = Instance.new("TextLabel")
-lagAfterLabel.Size = UDim2.new(0.6, 0, 0, 15)
-lagAfterLabel.Position = UDim2.new(0, 0, 0, 0)
+lagAfterLabel.Size = UDim2.new(0.5, 0, 0, 15)
+lagAfterLabel.Position = UDim2.new(0, 10, 0, 150)
 lagAfterLabel.BackgroundTransparency = 1
 lagAfterLabel.Text = "Lag After Steal:"
-lagAfterLabel.TextSize = 12
 lagAfterLabel.TextColor3 = Color3.fromRGB(150, 150, 150)
+lagAfterLabel.TextSize = 11
 lagAfterLabel.Font = Enum.Font.Gotham
 lagAfterLabel.TextXAlignment = Enum.TextXAlignment.Left
-lagAfterLabel.Parent = optionsContainer
+lagAfterLabel.Parent = mainPanel
 
 local lagAfterBtn = Instance.new("TextButton")
-lagAfterBtn.Name = "LagAfterButton"
-lagAfterBtn.Size = UDim2.new(0.35, 0, 0, 20)
-lagAfterBtn.Position = UDim2.new(0.65, 0, 0, -2)
+lagAfterBtn.Size = UDim2.new(0, 50, 0, 18)
+lagAfterBtn.Position = UDim2.new(0, 195, 0, 148)
 lagAfterBtn.BackgroundColor3 = Color3.fromRGB(60, 60, 60)
 lagAfterBtn.BorderSizePixel = 0
 lagAfterBtn.Text = "OFF"
-lagAfterBtn.TextSize = 12
 lagAfterBtn.TextColor3 = Color3.fromRGB(150, 150, 150)
+lagAfterBtn.TextSize = 11
 lagAfterBtn.Font = Enum.Font.GothamBold
-lagAfterBtn.Parent = optionsContainer
+lagAfterBtn.Parent = mainPanel
+Instance.new("UICorner", lagAfterBtn).CornerRadius = UDim.new(0, 4)
 
-local lagAfterCorner = Instance.new("UICorner")
-lagAfterCorner.CornerRadius = UDim.new(0, 4)
-lagAfterCorner.Parent = lagAfterBtn
-
--- Duration
 local durationLabel = Instance.new("TextLabel")
-durationLabel.Size = UDim2.new(0.6, 0, 0, 15)
-durationLabel.Position = UDim2.new(0, 0, 0, 20)
+durationLabel.Size = UDim2.new(0.5, 0, 0, 15)
+durationLabel.Position = UDim2.new(0, 10, 0, 172)
 durationLabel.BackgroundTransparency = 1
 durationLabel.Text = "Duration (sec):"
-durationLabel.TextSize = 12
 durationLabel.TextColor3 = Color3.fromRGB(150, 150, 150)
+durationLabel.TextSize = 11
 durationLabel.Font = Enum.Font.Gotham
 durationLabel.TextXAlignment = Enum.TextXAlignment.Left
-durationLabel.Parent = optionsContainer
+durationLabel.Parent = mainPanel
 
 local durationInput = Instance.new("TextBox")
-durationInput.Name = "DurationInput"
-durationInput.Size = UDim2.new(0.35, 0, 0, 20)
-durationInput.Position = UDim2.new(0.65, 0, 0, 18)
+durationInput.Size = UDim2.new(0, 50, 0, 18)
+durationInput.Position = UDim2.new(0, 195, 0, 170)
 durationInput.BackgroundColor3 = Color3.fromRGB(25, 25, 25)
 durationInput.BorderSizePixel = 0
-durationInput.Text = tostring(Config.Duration)
-durationInput.TextSize = 12
+durationInput.Text = "0.5"
 durationInput.TextColor3 = Color3.fromRGB(255, 200, 0)
+durationInput.TextSize = 11
 durationInput.Font = Enum.Font.GothamBold
-durationInput.Parent = optionsContainer
+durationInput.Parent = mainPanel
+Instance.new("UICorner", durationInput).CornerRadius = UDim.new(0, 4)
 
-local durationCorner = Instance.new("UICorner")
-durationCorner.CornerRadius = UDim.new(0, 4)
-durationCorner.Parent = durationInput
+-- Bottom buttons
+local bottomFrame = Instance.new("Frame")
+bottomFrame.Size = UDim2.new(1, -20, 0, 38)
+bottomFrame.Position = UDim2.new(0, 10, 0, 290)
+bottomFrame.BackgroundTransparency = 1
+bottomFrame.Parent = main
 
--- Bottom Buttons Container
-local bottomButtons = Instance.new("Frame")
-bottomButtons.Name = "BottomButtons"
-bottomButtons.Size = UDim2.new(1, -20, 0, 40)
-bottomButtons.Position = UDim2.new(0, 10, 0, 300)
-bottomButtons.BackgroundTransparency = 1
-bottomButtons.Parent = mainFrame
-
--- TP to Highest Button
 local tpHighestBtn = Instance.new("TextButton")
-tpHighestBtn.Size = UDim2.new(0.32, -5, 1, 0)
+tpHighestBtn.Size = UDim2.new(0.32, -3, 1, 0)
 tpHighestBtn.Position = UDim2.new(0, 0, 0, 0)
 tpHighestBtn.BackgroundColor3 = Color3.fromRGB(130, 50, 200)
 tpHighestBtn.BorderSizePixel = 0
 tpHighestBtn.Text = "⚡ TP TO HIGHEST"
-tpHighestBtn.TextSize = 13
-tpHighestBtn.TextColor3 = Color3.fromRGB(255, 255, 255)
+tpHighestBtn.TextColor3 = Color3.white
+tpHighestBtn.TextSize = 12
 tpHighestBtn.Font = Enum.Font.GothamBold
-tpHighestBtn.Parent = bottomButtons
+tpHighestBtn.Parent = bottomFrame
+Instance.new("UICorner", tpHighestBtn).CornerRadius = UDim.new(0, 6)
 
-local tpCorner = Instance.new("UICorner")
-tpCorner.CornerRadius = UDim.new(0, 6)
-tpCorner.Parent = tpHighestBtn
+local kickBtn = Instance.new("TextButton")
+kickBtn.Size = UDim2.new(0.32, -3, 1, 0)
+kickBtn.Position = UDim2.new(0.34, 0, 0, 0)
+kickBtn.BackgroundColor3 = Color3.fromRGB(50, 120, 200)
+kickBtn.BorderSizePixel = 0
+kickBtn.Text = "⚡ Kick Self"
+kickBtn.TextColor3 = Color3.white
+kickBtn.TextSize = 12
+kickBtn.Font = Enum.Font.GothamBold
+kickBtn.Parent = bottomFrame
+Instance.new("UICorner", kickBtn).CornerRadius = UDim.new(0, 6)
 
--- Kick Self Button
-local kickSelfBtn = Instance.new("TextButton")
-kickSelfBtn.Size = UDim2.new(0.32, -5, 1, 0)
-kickSelfBtn.Position = UDim2.new(0.34, 0, 0, 0)
-kickSelfBtn.BackgroundColor3 = Color3.fromRGB(50, 120, 200)
-kickSelfBtn.BorderSizePixel = 0
-kickSelfBtn.Text = "⚡ Kick Self"
-kickSelfBtn.TextSize = 13
-kickSelfBtn.TextColor3 = Color3.fromRGB(255, 255, 255)
-kickSelfBtn.Font = Enum.Font.GothamBold
-kickSelfBtn.Parent = bottomButtons
+local stopBtn = Instance.new("TextButton")
+stopBtn.Size = UDim2.new(0.32, -3, 1, 0)
+stopBtn.Position = UDim2.new(0.68, 0, 0, 0)
+stopBtn.BackgroundColor3 = Color3.fromRGB(200, 50, 50)
+stopBtn.BorderSizePixel = 0
+stopBtn.Text = "⬛ STOP ALL"
+stopBtn.TextColor3 = Color3.white
+stopBtn.TextSize = 12
+stopBtn.Font = Enum.Font.GothamBold
+stopBtn.Parent = bottomFrame
+Instance.new("UICorner", stopBtn).CornerRadius = UDim.new(0, 6)
 
-local kickCorner = Instance.new("UICorner")
-kickCorner.CornerRadius = UDim.new(0, 6)
-kickCorner.Parent = kickSelfBtn
+-- Floor section
+local floorFrame = Instance.new("Frame")
+floorFrame.Size = UDim2.new(1, -20, 0, 88)
+floorFrame.Position = UDim2.new(0, 10, 0, 342)
+floorFrame.BackgroundColor3 = Color3.fromRGB(15, 15, 15)
+floorFrame.BorderSizePixel = 0
+floorFrame.Parent = main
+Instance.new("UICorner", floorFrame).CornerRadius = UDim.new(0, 8)
+local floorStroke = Instance.new("UIStroke", floorFrame)
+floorStroke.Color = Color3.fromRGB(255, 140, 0)
+floorStroke.Thickness = 2
 
--- Stop All Button
-local stopAllBtn = Instance.new("TextButton")
-stopAllBtn.Size = UDim2.new(0.32, -5, 1, 0)
-stopAllBtn.Position = UDim2.new(0.68, 0, 0, 0)
-stopAllBtn.BackgroundColor3 = Color3.fromRGB(200, 50, 50)
-stopAllBtn.BorderSizePixel = 0
-stopAllBtn.Text = "⬛ STOP ALL"
-stopAllBtn.TextSize = 13
-stopAllBtn.TextColor3 = Color3.fromRGB(255, 255, 255)
-stopAllBtn.Font = Enum.Font.GothamBold
-stopAllBtn.Parent = bottomButtons
+local floorLabel = Instance.new("TextLabel")
+floorLabel.Size = UDim2.new(1, -20, 0, 22)
+floorLabel.Position = UDim2.new(0, 10, 0, 8)
+floorLabel.BackgroundTransparency = 1
+floorLabel.Text = "🔓 UNLOCK FLOOR (on highest brainrot's base):"
+floorLabel.TextColor3 = Color3.fromRGB(255, 180, 100)
+floorLabel.TextSize = 12
+floorLabel.Font = Enum.Font.GothamBold
+floorLabel.TextXAlignment = Enum.TextXAlignment.Left
+floorLabel.Parent = floorFrame
 
-local stopCorner = Instance.new("UICorner")
-stopCorner.CornerRadius = UDim.new(0, 6)
-stopCorner.Parent = stopAllBtn
-
--- Floor Unlock Section
-local floorSection = Instance.new("Frame")
-floorSection.Name = "FloorSection"
-floorSection.Size = UDim2.new(1, -20, 0, 90)
-floorSection.Position = UDim2.new(0, 10, 0, 350)
-floorSection.BackgroundColor3 = Color3.fromRGB(15, 15, 15)
-floorSection.BorderSizePixel = 0
-floorSection.Parent = mainFrame
-
-local floorCorner = Instance.new("UICorner")
-floorCorner.CornerRadius = UDim.new(0, 8)
-floorCorner.Parent = floorSection
-
-local floorBorder = Instance.new("UIStroke")
-floorBorder.Color = Color3.fromRGB(255, 140, 0)
-floorBorder.Thickness = 2
-floorBorder.Parent = floorSection
-
--- Floor Header
-local floorHeader = Instance.new("TextLabel")
-floorHeader.Size = UDim2.new(1, -20, 0, 25)
-floorHeader.Position = UDim2.new(0, 10, 0, 10)
-floorHeader.BackgroundTransparency = 1
-floorHeader.Text = "🔓 UNLOCK FLOOR (on highest brainrot's base):"
-floorHeader.TextSize = 13
-floorHeader.TextColor3 = Color3.fromRGB(255, 180, 100)
-floorHeader.Font = Enum.Font.GothamBold
-floorHeader.TextXAlignment = Enum.TextXAlignment.Left
-floorHeader.Parent = floorSection
-
--- Floor Buttons Container
-local floorButtons = Instance.new("Frame")
-floorButtons.Size = UDim2.new(1, -20, 0, 40)
-floorButtons.Position = UDim2.new(0, 10, 0, 40)
-floorButtons.BackgroundTransparency = 1
-floorButtons.Parent = floorSection
+local floorBtnFrame = Instance.new("Frame")
+floorBtnFrame.Size = UDim2.new(1, -20, 0, 36)
+floorBtnFrame.Position = UDim2.new(0, 10, 0, 38)
+floorBtnFrame.BackgroundTransparency = 1
+floorBtnFrame.Parent = floorFrame
 
 for i = 1, 3 do
     local floorBtn = Instance.new("TextButton")
-    floorBtn.Name = "Floor" .. i
-    floorBtn.Size = UDim2.new(0.32, -5, 1, 0)
+    floorBtn.Size = UDim2.new(0.32, -3, 1, 0)
     floorBtn.Position = UDim2.new((i-1) * 0.34, 0, 0, 0)
     floorBtn.BackgroundColor3 = Color3.fromRGB(60, 60, 60)
     floorBtn.BorderSizePixel = 0
     floorBtn.Text = "Floor " .. i
-    floorBtn.TextSize = 14
-    floorBtn.TextColor3 = Color3.fromRGB(255, 255, 255)
+    floorBtn.TextColor3 = Color3.white
+    floorBtn.TextSize = 13
     floorBtn.Font = Enum.Font.GothamBold
-    floorBtn.Parent = floorButtons
+    floorBtn.Parent = floorBtnFrame
+    Instance.new("UICorner", floorBtn).CornerRadius = UDim.new(0, 6)
     
-    local btnCorner = Instance.new("UICorner")
-    btnCorner.CornerRadius = UDim.new(0, 6)
-    btnCorner.Parent = floorBtn
+    floorBtn.MouseButton1Click:Connect(function()
+        local highest = getHighestPlayer()
+        if highest then
+            teleportToPlayer(highest)
+            print("[Floor " .. i .. "] Téléportation effectuée")
+        else
+            warn("Aucun joueur trouvé")
+        end
+    end)
 end
 
--- Fonctions de boutons
-starterActivateBtn.MouseButton1Click:Connect(function()
+-- Event handlers
+starterBtn.MouseButton1Click:Connect(function()
+    Config.StarterPower = tonumber(starterInput.Text) or 0.25
     Config.StarterActive = not Config.StarterActive
+    
     if Config.StarterActive then
-        starterActivateBtn.Text = "⚡ DEACTIVATE"
-        starterActivateBtn.BackgroundColor3 = Color3.fromRGB(200, 50, 50)
+        starterBtn.Text = "⚡ DEACTIVATE"
+        starterBtn.BackgroundColor3 = Color3.fromRGB(200, 50, 50)
+        activateStarterLag()
     else
-        starterActivateBtn.Text = "⚡ ACTIVATE"
-        starterActivateBtn.BackgroundColor3 = Color3.fromRGB(0, 200, 0)
+        starterBtn.Text = "⚡ ACTIVATE"
+        starterBtn.BackgroundColor3 = Color3.fromRGB(0, 200, 0)
     end
 end)
 
-mainActivateBtn.MouseButton1Click:Connect(function()
+mainBtn.MouseButton1Click:Connect(function()
+    Config.MainPower = tonumber(mainInput.Text) or 0.5
     Config.MainActive = not Config.MainActive
+    
     if Config.MainActive then
-        mainActivateBtn.Text = "⚡ DEACTIVATE"
-        mainActivateBtn.BackgroundColor3 = Color3.fromRGB(0, 200, 0)
+        mainBtn.Text = "⚡ DEACTIVATE"
+        mainBtn.BackgroundColor3 = Color3.fromRGB(0, 200, 0)
+        activateMainLag()
     else
-        mainActivateBtn.Text = "⚡ ACTIVATE"
-        mainActivateBtn.BackgroundColor3 = Color3.fromRGB(255, 80, 80)
+        mainBtn.Text = "⚡ ACTIVATE"
+        mainBtn.BackgroundColor3 = Color3.fromRGB(255, 80, 80)
+    end
+end)
+
+starterTPBtn.MouseButton1Click:Connect(function()
+    Config.StarterPower = tonumber(starterInput.Text) or 0.25
+    Config.StarterActive = true
+    starterBtn.Text = "⚡ DEACTIVATE"
+    starterBtn.BackgroundColor3 = Color3.fromRGB(200, 50, 50)
+    
+    local highest = getHighestPlayer()
+    if highest then
+        activateStarterLag()
+        wait(0.5)
+        teleportToPlayer(highest)
     end
 end)
 
@@ -450,7 +490,7 @@ lagAfterBtn.MouseButton1Click:Connect(function()
     if Config.LagAfterSteal then
         lagAfterBtn.Text = "ON"
         lagAfterBtn.BackgroundColor3 = Color3.fromRGB(0, 150, 0)
-        lagAfterBtn.TextColor3 = Color3.fromRGB(255, 255, 255)
+        lagAfterBtn.TextColor3 = Color3.white
     else
         lagAfterBtn.Text = "OFF"
         lagAfterBtn.BackgroundColor3 = Color3.fromRGB(60, 60, 60)
@@ -458,54 +498,46 @@ lagAfterBtn.MouseButton1Click:Connect(function()
     end
 end)
 
-stopAllBtn.MouseButton1Click:Connect(function()
-    Config.StarterActive = false
-    Config.MainActive = false
-    starterActivateBtn.Text = "⚡ ACTIVATE"
-    starterActivateBtn.BackgroundColor3 = Color3.fromRGB(0, 200, 0)
-    mainActivateBtn.Text = "⚡ ACTIVATE"
-    mainActivateBtn.BackgroundColor3 = Color3.fromRGB(255, 80, 80)
-    print("All effects stopped")
+durationInput.FocusLost:Connect(function()
+    Config.Duration = tonumber(durationInput.Text) or 0.5
 end)
 
--- Rendre le frame draggable
-local dragging
-local dragInput
-local dragStart
-local startPos
-
-local function update(input)
-    local delta = input.Position - dragStart
-    mainFrame.Position = UDim2.new(startPos.X.Scale, startPos.X.Offset + delta.X, startPos.Y.Scale, startPos.Y.Offset + delta.Y)
-end
-
-mainFrame.InputBegan:Connect(function(input)
-    if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
-        dragging = true
-        dragStart = input.Position
-        startPos = mainFrame.Position
-        
-        input.Changed:Connect(function()
-            if input.UserInputState == Enum.UserInputState.End then
-                dragging = false
-            end
-        end)
+tpHighestBtn.MouseButton1Click:Connect(function()
+    local highest = getHighestPlayer()
+    if highest then
+        teleportToPlayer(highest)
+    else
+        warn("Aucun joueur avec stats trouvé")
     end
 end)
 
-mainFrame.InputChanged:Connect(function(input)
-    if input.UserInputType == Enum.UserInputType.MouseMovement or input.UserInputType == Enum.UserInputType.Touch then
-        dragInput = input
-    end
+kickBtn.MouseButton1Click:Connect(function()
+    player:Kick("Auto-kick activé")
 end)
 
-game:GetService("UserInputService").InputChanged:Connect(function(input)
-    if input == dragInput and dragging then
-        update(input)
-    end
+stopBtn.MouseButton1Click:Connect(function()
+    stopAll()
+    starterBtn.Text = "⚡ ACTIVATE"
+    starterBtn.BackgroundColor3 = Color3.fromRGB(0, 200, 0)
+    mainBtn.Text = "⚡ ACTIVATE"
+    mainBtn.BackgroundColor3 = Color3.fromRGB(255, 80, 80)
 end)
 
-print("Lemon Freezer UI Loaded!")
+-- Auto-loop pour les effets actifs
+table.insert(connections, RunService.Heartbeat:Connect(function()
+    if Config.StarterActive then
+        activateStarterLag()
+        wait(0.5)
+    end
+    if Config.MainActive then
+        activateMainLag()
+        wait(1)
+    end
+end))
+
+print("[Lemon Freezer v1.3.1] Chargé avec succès!")
+print("Compatible avec Zeno Executor")
+print("Interface draggable - Tire sur la frame pour la déplacer")
 }):Play()
 
 print("🔥 SLAYZHUB v4.2 LOADED - GREEN EDITION!")
