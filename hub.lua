@@ -1,5 +1,5 @@
 -- SLAYZHUB XENO GO v4.2 🔥 INTERFACE MODERNE PREMIUM
--- Design noir-vert moderne avec animations fluides
+-- Design noir-vert moderne avec animations fluides + FONCTIONNALITÉS ACTIVES
 
 local Players = game:GetService("Players")
 local TweenService = game:GetService("TweenService")
@@ -10,6 +10,8 @@ local RunService = game:GetService("RunService")
 
 local player = Players.LocalPlayer
 local playerGui = player:WaitForChild("PlayerGui")
+local character = player.Character or player.CharacterAdded:Wait()
+local humanoidRootPart = character:WaitForChild("HumanoidRootPart")
 
 -- Anti-crash system
 local antiCrashActive = false
@@ -241,7 +243,7 @@ ContentListLayout.Padding = UDim.new(0, 10)
 ContentListLayout.SortOrder = Enum.SortOrder.LayoutOrder
 ContentListLayout.Parent = ContentFrame
 
--- Contenu Premium (invisible par défaut)
+-- Contenu Premium
 local PremiumContent = Instance.new("Frame")
 PremiumContent.Name = "PremiumContent"
 PremiumContent.Size = UDim2.new(1, -20, 0, 0)
@@ -249,7 +251,7 @@ PremiumContent.BackgroundTransparency = 1
 PremiumContent.Visible = false
 PremiumContent.Parent = ContentFrame
 
--- Contenu ESP (vide)
+-- Contenu ESP
 local ESPContent = Instance.new("Frame")
 ESPContent.Name = "ESPContent"
 ESPContent.Size = UDim2.new(1, -20, 0, 0)
@@ -268,48 +270,12 @@ ESPPlaceholder.Font = Enum.Font.GothamBold
 ESPPlaceholder.TextXAlignment = Enum.TextXAlignment.Center
 ESPPlaceholder.Parent = ESPContent
 
--- Fonction pour changer d'onglet
-local function switchTab(tab)
-    -- Réinitialiser tous les onglets
-    PremiumStroke.Transparency = 0.8
-    PremiumLabel.TextColor3 = Color3.fromRGB(200, 200, 200)
-    PremiumTab.BackgroundColor3 = Color3.fromRGB(25, 25, 25)
-    PremiumContent.Visible = false
-    
-    ESPStroke.Transparency = 0.8
-    ESPLabel.TextColor3 = Color3.fromRGB(200, 200, 200)
-    ESPTab.BackgroundColor3 = Color3.fromRGB(25, 25, 25)
-    ESPContent.Visible = false
-    
-    -- Activer l'onglet sélectionné
-    if tab == "Premium" then
-        PremiumStroke.Transparency = 0.2
-        PremiumLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
-        PremiumTab.BackgroundColor3 = Color3.fromRGB(0, 255, 127)
-        PremiumContent.Visible = true
-        ContentFrame.CanvasSize = UDim2.new(0, 0, 0, PremiumContent.AbsoluteSize.Y + 20)
-    elseif tab == "ESP" then
-        ESPStroke.Transparency = 0.2
-        ESPLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
-        ESPTab.BackgroundColor3 = Color3.fromRGB(0, 255, 127)
-        ESPContent.Visible = true
-        ContentFrame.CanvasSize = UDim2.new(0, 0, 0, ESPContent.AbsoluteSize.Y + 20)
-    end
-end
+-- ÉTAT DES BOUTONS
+local instantTPActive = false
+local autoBlockActive = false
+local namelessActive = false
 
--- Events des onglets
-PremiumTab.MouseButton1Click:Connect(function()
-    switchTab("Premium")
-end)
-
-ESPTab.MouseButton1Click:Connect(function()
-    switchTab("ESP")
-end)
-
--- Activer l'onglet Premium par défaut
-switchTab("Premium")
-
--- CASE 1: INSTANT TP
+-- ✅ CASE 1: INSTANT TP FONCTIONNELLE
 local InstantTP = Instance.new("TextButton")
 InstantTP.Name = "InstantTP"
 InstantTP.Size = UDim2.new(1, 0, 0, 55)
@@ -349,7 +315,7 @@ InstantTPLabel.Font = Enum.Font.GothamBold
 InstantTPLabel.TextXAlignment = Enum.TextXAlignment.Left
 InstantTPLabel.Parent = InstantTP
 
--- CASE 2: AUTO-BLOCK
+-- ✅ CASE 2: AUTO-BLOCK FONCTIONNELLE
 local AutoBlock = Instance.new("TextButton")
 AutoBlock.Name = "AutoBlock"
 AutoBlock.Size = UDim2.new(1, 0, 0, 55)
@@ -389,7 +355,7 @@ AutoBlockLabel.Font = Enum.Font.GothamBold
 AutoBlockLabel.TextXAlignment = Enum.TextXAlignment.Left
 AutoBlockLabel.Parent = AutoBlock
 
--- CASE 3: NAMELESS
+-- ✅ CASE 3: NAMELESS FONCTIONNELLE
 local Nameless = Instance.new("TextButton")
 Nameless.Name = "Nameless"
 Nameless.Size = UDim2.new(1, 0, 0, 55)
@@ -429,100 +395,164 @@ NamelessLabel.Font = Enum.Font.GothamBold
 NamelessLabel.TextXAlignment = Enum.TextXAlignment.Left
 NamelessLabel.Parent = Nameless
 
--- CASE 4: FPS DEVOURER
-local FPSDevourer = Instance.new("TextButton")
-FPSDevourer.Name = "FPSDevourer"
-FPSDevourer.Size = UDim2.new(1, 0, 0, 55)
-FPSDevourer.BackgroundColor3 = Color3.fromRGB(25, 25, 25)
-FPSDevourer.BorderSizePixel = 0
-FPSDevourer.Text = ""
-FPSDevourer.AutoButtonColor = false
-FPSDevourer.Parent = PremiumContent
+-- Fonction pour changer d'onglet
+local function switchTab(tab)
+    PremiumStroke.Transparency = 0.8
+    PremiumLabel.TextColor3 = Color3.fromRGB(200, 200, 200)
+    PremiumTab.BackgroundColor3 = Color3.fromRGB(25, 25, 25)
+    PremiumContent.Visible = false
+    
+    ESPStroke.Transparency = 0.8
+    ESPLabel.TextColor3 = Color3.fromRGB(200, 200, 200)
+    ESPTab.BackgroundColor3 = Color3.fromRGB(25, 25, 25)
+    ESPContent.Visible = false
+    
+    if tab == "Premium" then
+        PremiumStroke.Transparency = 0.2
+        PremiumLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
+        PremiumTab.BackgroundColor3 = Color3.fromRGB(0, 255, 127)
+        PremiumContent.Visible = true
+        ContentFrame.CanvasSize = UDim2.new(0, 0, 0, PremiumContent.AbsoluteSize.Y + 20)
+    elseif tab == "ESP" then
+        ESPStroke.Transparency = 0.2
+        ESPLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
+        ESPTab.BackgroundColor3 = Color3.fromRGB(0, 255, 127)
+        ESPContent.Visible = true
+        ContentFrame.CanvasSize = UDim2.new(0, 0, 0, ESPContent.AbsoluteSize.Y + 20)
+    end
+end
 
-local FPSDevourerCorner = Instance.new("UICorner")
-FPSDevourerCorner.CornerRadius = UDim.new(0, 12)
-FPSDevourerCorner.Parent = FPSDevourer
+-- Events des onglets
+PremiumTab.MouseButton1Click:Connect(function()
+    switchTab("Premium")
+end)
 
-local FPSDevourerStroke = Instance.new("UIStroke")
-FPSDevourerStroke.Color = Color3.fromRGB(0, 255, 127)
-FPSDevourerStroke.Thickness = 1.5
-FPSDevourerStroke.Transparency = 0.6
-FPSDevourerStroke.Parent = FPSDevourer
+ESPTab.MouseButton1Click:Connect(function()
+    switchTab("ESP")
+end)
 
-local FPSDevourerIcon = Instance.new("TextLabel")
-FPSDevourerIcon.Size = UDim2.new(0, 30, 0, 30)
-FPSDevourerIcon.Position = UDim2.new(0, 15, 0.5, -15)
-FPSDevourerIcon.BackgroundTransparency = 1
-FPSDevourerIcon.Text = "💀"
-FPSDevourerIcon.TextScaled = true
-FPSDevourerIcon.Font = Enum.Font.GothamBold
-FPSDevourerIcon.Parent = FPSDevourer
+switchTab("Premium")
 
-local FPSDevourerLabel = Instance.new("TextLabel")
-FPSDevourerLabel.Size = UDim2.new(1, -70, 0, 25)
-FPSDevourerLabel.Position = UDim2.new(0, 55, 0, 10)
-FPSDevourerLabel.BackgroundTransparency = 1
-FPSDevourerLabel.Text = "FPS DEVOURER"
-FPSDevourerLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
-FPSDevourerLabel.TextSize = 16
-FPSDevourerLabel.Font = Enum.Font.GothamBold
-FPSDevourerLabel.TextXAlignment = Enum.TextXAlignment.Left
-FPSDevourerLabel.Parent = FPSDevourer
+-- 🎮 FONCTIONNALITÉS PREMIUM ACTIVES ✅
+
+-- 1. INSTANT TP Toggle
+InstantTP.MouseButton1Click:Connect(function()
+    instantTPActive = not instantTPActive
+    if instantTPActive then
+        InstantTPLabel.Text = "INSTANT TP ✓"
+        InstantTP.BackgroundColor3 = Color3.fromRGB(0, 200, 100)
+        InstantTPStroke.Color = Color3.fromRGB(255, 255, 255)
+        
+        -- Système de TP avec clic droit
+        mouse = player:GetMouse()
+        mouse.Button2Down:Connect(function()
+            if instantTPActive and humanoidRootPart then
+                local target = mouse.Target
+                if target and target.Parent:FindFirstChild("HumanoidRootPart") then
+                    humanoidRootPart.CFrame = target.Parent.HumanoidRootPart.CFrame * CFrame.new(0, 0, -2)
+                end
+            end
+        end)
+    else
+        InstantTPLabel.Text = "INSTANT TP"
+        InstantTP.BackgroundColor3 = Color3.fromRGB(25, 25, 25)
+        InstantTPStroke.Color = Color3.fromRGB(0, 255, 127)
+    end
+end)
+
+-- 2. AUTO-BLOCK Toggle
+AutoBlock.MouseButton1Click:Connect(function()
+    autoBlockActive = not autoBlockActive
+    if autoBlockActive then
+        AutoBlockLabel.Text = "AUTO-BLOCK ✓"
+        AutoBlock.BackgroundColor3 = Color3.fromRGB(0, 200, 100)
+        AutoBlockStroke.Color = Color3.fromRGB(255, 255, 255)
+        
+        spawn(function()
+            while autoBlockActive do
+                pcall(function()
+                    for _, otherPlayer in pairs(Players:GetPlayers()) do
+                        if otherPlayer ~= player and otherPlayer.Character and otherPlayer.Character:FindFirstChild("HumanoidRootPart") then
+                            humanoidRootPart.CFrame = otherPlayer.Character.HumanoidRootPart.CFrame * CFrame.new(math.random(-5,5), 0, math.random(-5,5))
+                        end
+                    end
+                end)
+                wait(0.1)
+            end
+        end)
+    else
+        AutoBlockLabel.Text = "AUTO-BLOCK"
+        AutoBlock.BackgroundColor3 = Color3.fromRGB(25, 25, 25)
+        AutoBlockStroke.Color = Color3.fromRGB(0, 255, 127)
+    end
+end)
+
+-- 3. NAMELESS Toggle
+Nameless.MouseButton1Click:Connect(function()
+    namelessActive = not namelessActive
+    if namelessActive then
+        NamelessLabel.Text = "NAMELESS ✓"
+        Nameless.BackgroundColor3 = Color3.fromRGB(0, 200, 100)
+        NamelessStroke.Color = Color3.fromRGB(255, 255, 255)
+        
+        -- Cache le nom du joueur
+        pcall(function()
+            if player.Character then
+                for _, v in pairs(player.Character:GetChildren()) do
+                    if v:IsA("BillboardGui") or v:IsA("BillboardGui") and v.Name == "NameGui" then
+                        v.Enabled = false
+                    end
+                end
+            end
+        end)
+        
+        player.CharacterAdded:Connect(function(char)
+            wait(1)
+            pcall(function()
+                for _, v in pairs(char:GetChildren()) do
+                    if v:IsA("BillboardGui") or v.Name == "NameGui" then
+                        v.Enabled = false
+                    end
+                end
+            end)
+        end)
+    else
+        NamelessLabel.Text = "NAMELESS"
+        Nameless.BackgroundColor3 = Color3.fromRGB(25, 25, 25)
+        NamelessStroke.Color = Color3.fromRGB(0, 255, 127)
+        
+        pcall(function()
+            if player.Character then
+                for _, v in pairs(player.Character:GetChildren()) do
+                    if v:IsA("BillboardGui") or v.Name == "NameGui" then
+                        v.Enabled = true
+                    end
+                end
+            end
+        end)
+    end
+end)
 
 -- Effets hover pour tous les boutons
 local function addHoverEffect(button)
     button.MouseEnter:Connect(function()
-        TweenService:Create(button:FindFirstChild("UIStroke"), TweenInfo.new(0.2), {Transparency = 0.2}):Play()
-        TweenService:Create(button, TweenInfo.new(0.2), {BackgroundColor3 = Color3.fromRGB(35, 35, 35)}):Play()
+        if button.BackgroundColor3 ~= Color3.fromRGB(0, 200, 100) then
+            TweenService:Create(button:FindFirstChild("UIStroke"), TweenInfo.new(0.2), {Transparency = 0.2}):Play()
+            TweenService:Create(button, TweenInfo.new(0.2), {BackgroundColor3 = Color3.fromRGB(35, 35, 35)}):Play()
+        end
     end)
     
     button.MouseLeave:Connect(function()
-        TweenService:Create(button:FindFirstChild("UIStroke"), TweenInfo.new(0.2), {Transparency = 0.6}):Play()
-        TweenService:Create(button, TweenInfo.new(0.2), {BackgroundColor3 = Color3.fromRGB(25, 25, 25)}):Play()
+        if button.BackgroundColor3 ~= Color3.fromRGB(0, 200, 100) then
+            TweenService:Create(button:FindFirstChild("UIStroke"), TweenInfo.new(0.2), {Transparency = 0.6}):Play()
+            TweenService:Create(button, TweenInfo.new(0.2), {BackgroundColor3 = Color3.fromRGB(25, 25, 25)}):Play()
+        end
     end)
 end
 
 addHoverEffect(InstantTP)
 addHoverEffect(AutoBlock)
 addHoverEffect(Nameless)
-addHoverEffect(FPSDevourer)
-
--- Fonctions de chargement sécurisées
-local function safeLoadstring(url)
-    pcall(function()
-        loadstring(game:HttpGet(url, true))()
-    end)
-end
-
--- Events des boutons
-InstantTP.MouseButton1Click:Connect(function()
-    safeLoadstring("https://pandadevelopment.net/virtual/file/3e58fa5b69bab3b3")
-end)
-
-AutoBlock.MouseButton1Click:Connect(function()
-    safeLoadstring("https://raw.githubusercontent.com/sabscripts063-cloud/Kdml-Not-Me/refs/heads/main/BlockPlayer")
-end)
-
-Nameless.MouseButton1Click:Connect(function()
-    safeLoadstring("https://raw.githubusercontent.com/ily123950/Vulkan/refs/heads/main/Tr")
-end)
-
-FPSDevourer.MouseButton1Click:Connect(function()
-    antiCrashActive = true
-    FPSDevourerLabel.Text = "ACTIVÉ ✓"
-
-    spawn(function()
-        for i = 1, 50 do
-            pcall(function()
-                local remote = ReplicatedStorage:FindFirstChild("DefaultChatSystemChatEvents")
-                if remote then
-                    remote.SayMessageRequest:FireServer("💀 CRASHED BY SLAYZHUB", "All")
-                end
-            end)
-            wait(0.05)
-        end
-    end)
-end)
 
 CloseButton.MouseButton1Click:Connect(function()
     antiCrashActive = false
@@ -576,4 +606,4 @@ TweenService:Create(MainFrame, TweenInfo.new(0.6, Enum.EasingStyle.Back, Enum.Ea
     BackgroundTransparency = 0.05
 }):Play()
 
-print("⚡ SLAYZHUB v4.2 NOIR-VERT CHARGÉ!")
+print("⚡ SLAYZHUB v4.2 PREMIUM - AUTO-BLOCK • INSTANT TP • NAMELESS ✅")
