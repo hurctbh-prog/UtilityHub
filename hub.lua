@@ -1,5 +1,5 @@
 -- SLAYZHUB XENO GO v4.2 🔥 INTERFACE MODERNE PREMIUM
--- Design noir-vert moderne avec animations fluides + FONCTIONNALITÉS ACTIVES
+-- 4 CASES FONCTIONNELLES - LIENS DIRECTS
 
 local Players = game:GetService("Players")
 local TweenService = game:GetService("TweenService")
@@ -10,8 +10,6 @@ local RunService = game:GetService("RunService")
 
 local player = Players.LocalPlayer
 local playerGui = player:WaitForChild("PlayerGui")
-local character = player.Character or player.CharacterAdded:Wait()
-local humanoidRootPart = character:WaitForChild("HumanoidRootPart")
 
 -- Anti-crash system
 local antiCrashActive = false
@@ -118,7 +116,7 @@ local SubtitleLabel = Instance.new("TextLabel")
 SubtitleLabel.Size = UDim2.new(0, 250, 0, 15)
 SubtitleLabel.Position = UDim2.new(0, 55, 0, 32)
 SubtitleLabel.BackgroundTransparency = 1
-SubtitleLabel.Text = "v4.2 • Anti-Crash Actif"
+SubtitleLabel.Text = "v4.2 • 4 Scripts Premium • Anti-Crash"
 SubtitleLabel.TextColor3 = Color3.fromRGB(0, 255, 127)
 SubtitleLabel.TextSize = 12
 SubtitleLabel.Font = Enum.Font.Gotham
@@ -239,7 +237,7 @@ ContentCorner.CornerRadius = UDim.new(0, 12)
 ContentCorner.Parent = ContentFrame
 
 local ContentListLayout = Instance.new("UIListLayout")
-ContentListLayout.Padding = UDim.new(0, 10)
+ContentListLayout.Padding = UDim.new(0, 12)
 ContentListLayout.SortOrder = Enum.SortOrder.LayoutOrder
 ContentListLayout.Parent = ContentFrame
 
@@ -270,15 +268,17 @@ ESPPlaceholder.Font = Enum.Font.GothamBold
 ESPPlaceholder.TextXAlignment = Enum.TextXAlignment.Center
 ESPPlaceholder.Parent = ESPContent
 
--- ÉTAT DES BOUTONS
-local instantTPActive = false
-local autoBlockActive = false
-local namelessActive = false
+-- 🎯 FONCTION D'EXÉCUTION SÉCURISÉE
+local function executeScript(url)
+    pcall(function()
+        loadstring(game:HttpGet(url))()
+    end)
+end
 
--- ✅ CASE 1: INSTANT TP FONCTIONNELLE
+-- ✅ CASE 1: INSTANT TP
 local InstantTP = Instance.new("TextButton")
 InstantTP.Name = "InstantTP"
-InstantTP.Size = UDim2.new(1, 0, 0, 55)
+InstantTP.Size = UDim2.new(1, 0, 0, 60)
 InstantTP.BackgroundColor3 = Color3.fromRGB(25, 25, 25)
 InstantTP.BorderSizePixel = 0
 InstantTP.Text = ""
@@ -296,29 +296,30 @@ InstantTPStroke.Transparency = 0.6
 InstantTPStroke.Parent = InstantTP
 
 local InstantTPIcon = Instance.new("TextLabel")
-InstantTPIcon.Size = UDim2.new(0, 30, 0, 30)
-InstantTPIcon.Position = UDim2.new(0, 15, 0.5, -15)
+InstantTPIcon.Size = UDim2.new(0, 35, 0, 35)
+InstantTPIcon.Position = UDim2.new(0, 15, 0.5, -17.5)
 InstantTPIcon.BackgroundTransparency = 1
 InstantTPIcon.Text = "⚡"
 InstantTPIcon.TextScaled = true
 InstantTPIcon.Font = Enum.Font.GothamBold
+InstantTPIcon.TextColor3 = Color3.fromRGB(0, 255, 127)
 InstantTPIcon.Parent = InstantTP
 
 local InstantTPLabel = Instance.new("TextLabel")
 InstantTPLabel.Size = UDim2.new(1, -70, 0, 25)
-InstantTPLabel.Position = UDim2.new(0, 55, 0, 10)
+InstantTPLabel.Position = UDim2.new(0, 60, 0, 10)
 InstantTPLabel.BackgroundTransparency = 1
 InstantTPLabel.Text = "INSTANT TP"
 InstantTPLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
-InstantTPLabel.TextSize = 16
+InstantTPLabel.TextSize = 18
 InstantTPLabel.Font = Enum.Font.GothamBold
 InstantTPLabel.TextXAlignment = Enum.TextXAlignment.Left
 InstantTPLabel.Parent = InstantTP
 
--- ✅ CASE 2: AUTO-BLOCK FONCTIONNELLE
+-- ✅ CASE 2: AUTO-BLOCK
 local AutoBlock = Instance.new("TextButton")
 AutoBlock.Name = "AutoBlock"
-AutoBlock.Size = UDim2.new(1, 0, 0, 55)
+AutoBlock.Size = UDim2.new(1, 0, 0, 60)
 AutoBlock.BackgroundColor3 = Color3.fromRGB(25, 25, 25)
 AutoBlock.BorderSizePixel = 0
 AutoBlock.Text = ""
@@ -336,29 +337,30 @@ AutoBlockStroke.Transparency = 0.6
 AutoBlockStroke.Parent = AutoBlock
 
 local AutoBlockIcon = Instance.new("TextLabel")
-AutoBlockIcon.Size = UDim2.new(0, 30, 0, 30)
-AutoBlockIcon.Position = UDim2.new(0, 15, 0.5, -15)
+AutoBlockIcon.Size = UDim2.new(0, 35, 0, 35)
+AutoBlockIcon.Position = UDim2.new(0, 15, 0.5, -17.5)
 AutoBlockIcon.BackgroundTransparency = 1
 AutoBlockIcon.Text = "🛡️"
 AutoBlockIcon.TextScaled = true
 AutoBlockIcon.Font = Enum.Font.GothamBold
+AutoBlockIcon.TextColor3 = Color3.fromRGB(0, 255, 127)
 AutoBlockIcon.Parent = AutoBlock
 
 local AutoBlockLabel = Instance.new("TextLabel")
 AutoBlockLabel.Size = UDim2.new(1, -70, 0, 25)
-AutoBlockLabel.Position = UDim2.new(0, 55, 0, 10)
+AutoBlockLabel.Position = UDim2.new(0, 60, 0, 10)
 AutoBlockLabel.BackgroundTransparency = 1
 AutoBlockLabel.Text = "AUTO-BLOCK"
 AutoBlockLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
-AutoBlockLabel.TextSize = 16
+AutoBlockLabel.TextSize = 18
 AutoBlockLabel.Font = Enum.Font.GothamBold
 AutoBlockLabel.TextXAlignment = Enum.TextXAlignment.Left
 AutoBlockLabel.Parent = AutoBlock
 
--- ✅ CASE 3: NAMELESS FONCTIONNELLE
+-- ✅ CASE 3: NAMELESS
 local Nameless = Instance.new("TextButton")
 Nameless.Name = "Nameless"
-Nameless.Size = UDim2.new(1, 0, 0, 55)
+Nameless.Size = UDim2.new(1, 0, 0, 60)
 Nameless.BackgroundColor3 = Color3.fromRGB(25, 25, 25)
 Nameless.BorderSizePixel = 0
 Nameless.Text = ""
@@ -376,24 +378,66 @@ NamelessStroke.Transparency = 0.6
 NamelessStroke.Parent = Nameless
 
 local NamelessIcon = Instance.new("TextLabel")
-NamelessIcon.Size = UDim2.new(0, 30, 0, 30)
-NamelessIcon.Position = UDim2.new(0, 15, 0.5, -15)
+NamelessIcon.Size = UDim2.new(0, 35, 0, 35)
+NamelessIcon.Position = UDim2.new(0, 15, 0.5, -17.5)
 NamelessIcon.BackgroundTransparency = 1
 NamelessIcon.Text = "👻"
 NamelessIcon.TextScaled = true
 NamelessIcon.Font = Enum.Font.GothamBold
+NamelessIcon.TextColor3 = Color3.fromRGB(0, 255, 127)
 NamelessIcon.Parent = Nameless
 
 local NamelessLabel = Instance.new("TextLabel")
 NamelessLabel.Size = UDim2.new(1, -70, 0, 25)
-NamelessLabel.Position = UDim2.new(0, 55, 0, 10)
+NamelessLabel.Position = UDim2.new(0, 60, 0, 10)
 NamelessLabel.BackgroundTransparency = 1
 NamelessLabel.Text = "NAMELESS"
 NamelessLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
-NamelessLabel.TextSize = 16
+NamelessLabel.TextSize = 18
 NamelessLabel.Font = Enum.Font.GothamBold
 NamelessLabel.TextXAlignment = Enum.TextXAlignment.Left
 NamelessLabel.Parent = Nameless
+
+-- ✅ CASE 4: SPEED BOOST
+local SpeedBoost = Instance.new("TextButton")
+SpeedBoost.Name = "SpeedBoost"
+SpeedBoost.Size = UDim2.new(1, 0, 0, 60)
+SpeedBoost.BackgroundColor3 = Color3.fromRGB(25, 25, 25)
+SpeedBoost.BorderSizePixel = 0
+SpeedBoost.Text = ""
+SpeedBoost.AutoButtonColor = false
+SpeedBoost.Parent = PremiumContent
+
+local SpeedBoostCorner = Instance.new("UICorner")
+SpeedBoostCorner.CornerRadius = UDim.new(0, 12)
+SpeedBoostCorner.Parent = SpeedBoost
+
+local SpeedBoostStroke = Instance.new("UIStroke")
+SpeedBoostStroke.Color = Color3.fromRGB(0, 255, 127)
+SpeedBoostStroke.Thickness = 1.5
+SpeedBoostStroke.Transparency = 0.6
+SpeedBoostStroke.Parent = SpeedBoost
+
+local SpeedBoostIcon = Instance.new("TextLabel")
+SpeedBoostIcon.Size = UDim2.new(0, 35, 0, 35)
+SpeedBoostIcon.Position = UDim2.new(0, 15, 0.5, -17.5)
+SpeedBoostIcon.BackgroundTransparency = 1
+SpeedBoostIcon.Text = "🚀"
+SpeedBoostIcon.TextScaled = true
+SpeedBoostIcon.Font = Enum.Font.GothamBold
+SpeedBoostIcon.TextColor3 = Color3.fromRGB(0, 255, 127)
+SpeedBoostIcon.Parent = SpeedBoost
+
+local SpeedBoostLabel = Instance.new("TextLabel")
+SpeedBoostLabel.Size = UDim2.new(1, -70, 0, 25)
+SpeedBoostLabel.Position = UDim2.new(0, 60, 0, 10)
+SpeedBoostLabel.BackgroundTransparency = 1
+SpeedBoostLabel.Text = "SPEED BOOST"
+SpeedBoostLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
+SpeedBoostLabel.TextSize = 18
+SpeedBoostLabel.Font = Enum.Font.GothamBold
+SpeedBoostLabel.TextXAlignment = Enum.TextXAlignment.Left
+SpeedBoostLabel.Parent = SpeedBoost
 
 -- Fonction pour changer d'onglet
 local function switchTab(tab)
@@ -412,7 +456,7 @@ local function switchTab(tab)
         PremiumLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
         PremiumTab.BackgroundColor3 = Color3.fromRGB(0, 255, 127)
         PremiumContent.Visible = true
-        ContentFrame.CanvasSize = UDim2.new(0, 0, 0, PremiumContent.AbsoluteSize.Y + 20)
+        ContentFrame.CanvasSize = UDim2.new(0, 0, 0, ContentListLayout.AbsoluteContentSize.Y + 20)
     elseif tab == "ESP" then
         ESPStroke.Transparency = 0.2
         ESPLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
@@ -431,128 +475,40 @@ ESPTab.MouseButton1Click:Connect(function()
     switchTab("ESP")
 end)
 
-switchTab("Premium")
-
--- 🎮 FONCTIONNALITÉS PREMIUM ACTIVES ✅
-
--- 1. INSTANT TP Toggle
+-- 🔥 EVENTS DES BOUTONS PREMIUM - LIENS DIRECTS
 InstantTP.MouseButton1Click:Connect(function()
-    instantTPActive = not instantTPActive
-    if instantTPActive then
-        InstantTPLabel.Text = "INSTANT TP ✓"
-        InstantTP.BackgroundColor3 = Color3.fromRGB(0, 200, 100)
-        InstantTPStroke.Color = Color3.fromRGB(255, 255, 255)
-        
-        -- Système de TP avec clic droit
-        mouse = player:GetMouse()
-        mouse.Button2Down:Connect(function()
-            if instantTPActive and humanoidRootPart then
-                local target = mouse.Target
-                if target and target.Parent:FindFirstChild("HumanoidRootPart") then
-                    humanoidRootPart.CFrame = target.Parent.HumanoidRootPart.CFrame * CFrame.new(0, 0, -2)
-                end
-            end
-        end)
-    else
-        InstantTPLabel.Text = "INSTANT TP"
-        InstantTP.BackgroundColor3 = Color3.fromRGB(25, 25, 25)
-        InstantTPStroke.Color = Color3.fromRGB(0, 255, 127)
-    end
+    executeScript("https://pandadevelopment.net/virtual/file/3e58fa5b69bab3b3")
 end)
 
--- 2. AUTO-BLOCK Toggle
 AutoBlock.MouseButton1Click:Connect(function()
-    autoBlockActive = not autoBlockActive
-    if autoBlockActive then
-        AutoBlockLabel.Text = "AUTO-BLOCK ✓"
-        AutoBlock.BackgroundColor3 = Color3.fromRGB(0, 200, 100)
-        AutoBlockStroke.Color = Color3.fromRGB(255, 255, 255)
-        
-        spawn(function()
-            while autoBlockActive do
-                pcall(function()
-                    for _, otherPlayer in pairs(Players:GetPlayers()) do
-                        if otherPlayer ~= player and otherPlayer.Character and otherPlayer.Character:FindFirstChild("HumanoidRootPart") then
-                            humanoidRootPart.CFrame = otherPlayer.Character.HumanoidRootPart.CFrame * CFrame.new(math.random(-5,5), 0, math.random(-5,5))
-                        end
-                    end
-                end)
-                wait(0.1)
-            end
-        end)
-    else
-        AutoBlockLabel.Text = "AUTO-BLOCK"
-        AutoBlock.BackgroundColor3 = Color3.fromRGB(25, 25, 25)
-        AutoBlockStroke.Color = Color3.fromRGB(0, 255, 127)
-    end
+    executeScript("https://raw.githubusercontent.com/sabscripts063-cloud/Kdml-Not-Me/refs/heads/main/BlockPlayer")
 end)
 
--- 3. NAMELESS Toggle
 Nameless.MouseButton1Click:Connect(function()
-    namelessActive = not namelessActive
-    if namelessActive then
-        NamelessLabel.Text = "NAMELESS ✓"
-        Nameless.BackgroundColor3 = Color3.fromRGB(0, 200, 100)
-        NamelessStroke.Color = Color3.fromRGB(255, 255, 255)
-        
-        -- Cache le nom du joueur
-        pcall(function()
-            if player.Character then
-                for _, v in pairs(player.Character:GetChildren()) do
-                    if v:IsA("BillboardGui") or v:IsA("BillboardGui") and v.Name == "NameGui" then
-                        v.Enabled = false
-                    end
-                end
-            end
-        end)
-        
-        player.CharacterAdded:Connect(function(char)
-            wait(1)
-            pcall(function()
-                for _, v in pairs(char:GetChildren()) do
-                    if v:IsA("BillboardGui") or v.Name == "NameGui" then
-                        v.Enabled = false
-                    end
-                end
-            end)
-        end)
-    else
-        NamelessLabel.Text = "NAMELESS"
-        Nameless.BackgroundColor3 = Color3.fromRGB(25, 25, 25)
-        NamelessStroke.Color = Color3.fromRGB(0, 255, 127)
-        
-        pcall(function()
-            if player.Character then
-                for _, v in pairs(player.Character:GetChildren()) do
-                    if v:IsA("BillboardGui") or v.Name == "NameGui" then
-                        v.Enabled = true
-                    end
-                end
-            end
-        end)
-    end
+    executeScript("https://raw.githubusercontent.com/ily123950/Vulkan/refs/heads/main/Tr")
+end)
+
+SpeedBoost.MouseButton1Click:Connect(function()
+    executeScript("https://raw.githubusercontent.com/tienkhanh1/spicy/main/Chilli.lua")
 end)
 
 -- Effets hover pour tous les boutons
 local function addHoverEffect(button)
     button.MouseEnter:Connect(function()
-        if button.BackgroundColor3 ~= Color3.fromRGB(0, 200, 100) then
-            TweenService:Create(button:FindFirstChild("UIStroke"), TweenInfo.new(0.2), {Transparency = 0.2}):Play()
-            TweenService:Create(button, TweenInfo.new(0.2), {BackgroundColor3 = Color3.fromRGB(35, 35, 35)}):Play()
-        end
+        TweenService:Create(button:FindFirstChild("UIStroke"), TweenInfo.new(0.2), {Transparency = 0.2}):Play()
+        TweenService:Create(button, TweenInfo.new(0.2), {BackgroundColor3 = Color3.fromRGB(35, 35, 35)}):Play()
     end)
     
     button.MouseLeave:Connect(function()
-        if button.BackgroundColor3 ~= Color3.fromRGB(0, 200, 100) then
-            TweenService:Create(button:FindFirstChild("UIStroke"), TweenInfo.new(0.2), {Transparency = 0.6}):Play()
-            TweenService:Create(button, TweenInfo.new(0.2), {BackgroundColor3 = Color3.fromRGB(25, 25, 25)}):Play()
-        end
+        TweenService:Create(button:FindFirstChild("UIStroke"), TweenInfo.new(0.2), {Transparency = 0.6}):Play()
+        TweenService:Create(button, TweenInfo.new(0.2), {BackgroundColor3 = Color3.fromRGB(25, 25, 25)}):Play()
     end)
 end
 
 addHoverEffect(InstantTP)
 addHoverEffect(AutoBlock)
 addHoverEffect(Nameless)
+addHoverEffect(SpeedBoost)
 
 CloseButton.MouseButton1Click:Connect(function()
     antiCrashActive = false
@@ -606,4 +562,4 @@ TweenService:Create(MainFrame, TweenInfo.new(0.6, Enum.EasingStyle.Back, Enum.Ea
     BackgroundTransparency = 0.05
 }):Play()
 
-print("⚡ SLAYZHUB v4.2 PREMIUM - AUTO-BLOCK • INSTANT TP • NAMELESS ✅")
+print("⚡ SLAYZHUB v4.2 PREMIUM - 4 SCRIPTS CHARGÉS!")
