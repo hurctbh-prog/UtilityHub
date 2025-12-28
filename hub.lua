@@ -40,11 +40,11 @@ ScreenGui.ResetOnSpawn = false
 ScreenGui.DisplayOrder = 2147483647
 ScreenGui.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
 
--- Frame principale rectangle carré noir-vert
+-- Frame principale ÉLARGIE (600x550)
 local MainFrame = Instance.new("Frame")
 MainFrame.Name = "MainFrame"
-MainFrame.Size = UDim2.new(0, 500, 0, 500)
-MainFrame.Position = UDim2.new(0.5, -250, 0.5, -250)
+MainFrame.Size = UDim2.new(0, 600, 0, 550)
+MainFrame.Position = UDim2.new(0.5, -300, 0.5, -275)
 MainFrame.BackgroundColor3 = Color3.fromRGB(10, 10, 10)
 MainFrame.BackgroundTransparency = 0.05
 MainFrame.BorderSizePixel = 0
@@ -159,8 +159,8 @@ end)
 
 -- 🎯 ZONE PRINCIPALE POUR LES 4 BOUTONS (AU CENTRE EN GRAND)
 local MainContentFrame = Instance.new("ScrollingFrame")
-MainContentFrame.Size = UDim2.new(1, -20, 0, 300)
-MainContentFrame.Position = UDim2.new(0, 10, 0, 70)
+MainContentFrame.Size = UDim2.new(1, -40, 0, 320)
+MainContentFrame.Position = UDim2.new(0, 20, 0, 70)
 MainContentFrame.BackgroundColor3 = Color3.fromRGB(15, 15, 15)
 MainContentFrame.BackgroundTransparency = 0.1
 MainContentFrame.BorderSizePixel = 0
@@ -177,10 +177,10 @@ MainContentListLayout.Padding = UDim.new(0, 15)
 MainContentListLayout.SortOrder = Enum.SortOrder.LayoutOrder
 MainContentListLayout.Parent = MainContentFrame
 
--- Frame des onglets VERTICAUX EN BAS (plus bas pour voir les noms)
+-- Frame des onglets VERTICAUX EN BAS (maintenant ils rentrent parfaitement)
 local TabsFrame = Instance.new("Frame")
-TabsFrame.Size = UDim2.new(1, -20, 0, 60)
-TabsFrame.Position = UDim2.new(0, 10, 1, -80)
+TabsFrame.Size = UDim2.new(1, -40, 0, 60)
+TabsFrame.Position = UDim2.new(0, 20, 1, -85)
 TabsFrame.BackgroundColor3 = Color3.fromRGB(20, 20, 20)
 TabsFrame.BackgroundTransparency = 0.2
 TabsFrame.BorderSizePixel = 0
@@ -194,8 +194,8 @@ TabsCorner.Parent = TabsFrame
 local function createHorizontalTab(name, text, icon)
     local Tab = Instance.new("TextButton")
     Tab.Name = name
-    Tab.Size = UDim2.new(0, 120, 1, -10)
-    Tab.Position = UDim2.new(0, (#TabsFrame:GetChildren() - 2) * 130, 0, 5)
+    Tab.Size = UDim2.new(0, 140, 1, -10)  -- Élargi pour mieux rentrer
+    Tab.Position = UDim2.new(0, (#TabsFrame:GetChildren() - 2) * 145, 0, 5)
     Tab.BackgroundColor3 = Color3.fromRGB(25, 25, 25)
     Tab.BorderSizePixel = 0
     Tab.Text = ""
@@ -244,8 +244,8 @@ local ESPTab, ESPStroke, ESPLabel = createHorizontalTab("ESPTab", "ESP", "👁�
 -- Contenu ESP (petit en bas à droite)
 local ESPContent = Instance.new("Frame")
 ESPContent.Name = "ESPContent"
-ESPContent.Size = UDim2.new(0, 200, 0, 80)
-ESPContent.Position = UDim2.new(1, -220, 1, -95)
+ESPContent.Size = UDim2.new(0, 220, 0, 90)
+ESPContent.Position = UDim2.new(1, -250, 1, -100)
 ESPContent.BackgroundColor3 = Color3.fromRGB(15, 15, 15)
 ESPContent.BackgroundTransparency = 0.1
 ESPContent.Visible = false
@@ -554,7 +554,7 @@ MainFrame.BackgroundTransparency = 1
 wait(0.1)
 
 TweenService:Create(MainFrame, TweenInfo.new(0.6, Enum.EasingStyle.Back, Enum.EasingDirection.Out), {
-    Size = UDim2.new(0, 500, 0, 500),
+    Size = UDim2.new(0, 600, 0, 550),
     BackgroundTransparency = 0.05
 }):Play()
 
