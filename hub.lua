@@ -309,88 +309,183 @@ end)
 -- Activer l'onglet Premium par défaut
 switchTab("Premium")
 
--- Fonction pour créer un bouton moderne en liste
-local function createListButton(name, text, icon, color1, color2)
-    local Button = Instance.new("TextButton")
-    Button.Name = name
-    Button.Size = UDim2.new(1, 0, 0, 55)
-    Button.BackgroundColor3 = Color3.fromRGB(25, 25, 25)
-    Button.BorderSizePixel = 0
-    Button.Text = ""
-    Button.AutoButtonColor = false
-    Button.Parent = PremiumContent
+-- CASE 1: INSTANT TP
+local InstantTP = Instance.new("TextButton")
+InstantTP.Name = "InstantTP"
+InstantTP.Size = UDim2.new(1, 0, 0, 55)
+InstantTP.BackgroundColor3 = Color3.fromRGB(25, 25, 25)
+InstantTP.BorderSizePixel = 0
+InstantTP.Text = ""
+InstantTP.AutoButtonColor = false
+InstantTP.Parent = PremiumContent
 
-    local ButtonCorner = Instance.new("UICorner")
-    ButtonCorner.CornerRadius = UDim.new(0, 12)
-    ButtonCorner.Parent = Button
+local InstantTPCorner = Instance.new("UICorner")
+InstantTPCorner.CornerRadius = UDim.new(0, 12)
+InstantTPCorner.Parent = InstantTP
 
-    local ButtonStroke = Instance.new("UIStroke")
-    ButtonStroke.Color = color1
-    ButtonStroke.Thickness = 1.5
-    ButtonStroke.Transparency = 0.6
-    ButtonStroke.Parent = Button
+local InstantTPStroke = Instance.new("UIStroke")
+InstantTPStroke.Color = Color3.fromRGB(0, 255, 127)
+InstantTPStroke.Thickness = 1.5
+InstantTPStroke.Transparency = 0.6
+InstantTPStroke.Parent = InstantTP
 
-    -- Icône
-    local Icon = Instance.new("TextLabel")
-    Icon.Size = UDim2.new(0, 30, 0, 30)
-    Icon.Position = UDim2.new(0, 15, 0.5, -15)
-    Icon.BackgroundTransparency = 1
-    Icon.Text = icon
-    Icon.TextScaled = true
-    Icon.Font = Enum.Font.GothamBold
-    Icon.Parent = Button
+local InstantTPIcon = Instance.new("TextLabel")
+InstantTPIcon.Size = UDim2.new(0, 30, 0, 30)
+InstantTPIcon.Position = UDim2.new(0, 15, 0.5, -15)
+InstantTPIcon.BackgroundTransparency = 1
+InstantTPIcon.Text = "⚡"
+InstantTPIcon.TextScaled = true
+InstantTPIcon.Font = Enum.Font.GothamBold
+InstantTPIcon.Parent = InstantTP
 
-    -- Texte
-    local Label = Instance.new("TextLabel")
-    Label.Size = UDim2.new(1, -70, 0, 25)
-    Label.Position = UDim2.new(0, 55, 0, 10)
-    Label.BackgroundTransparency = 1
-    Label.Text = text
-    Label.TextColor3 = Color3.fromRGB(255, 255, 255)
-    Label.TextSize = 16
-    Label.Font = Enum.Font.GothamBold
-    Label.TextXAlignment = Enum.TextXAlignment.Left
-    Label.Parent = Button
+local InstantTPLabel = Instance.new("TextLabel")
+InstantTPLabel.Size = UDim2.new(1, -70, 0, 25)
+InstantTPLabel.Position = UDim2.new(0, 55, 0, 10)
+InstantTPLabel.BackgroundTransparency = 1
+InstantTPLabel.Text = "INSTANT TP"
+InstantTPLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
+InstantTPLabel.TextSize = 16
+InstantTPLabel.Font = Enum.Font.GothamBold
+InstantTPLabel.TextXAlignment = Enum.TextXAlignment.Left
+InstantTPLabel.Parent = InstantTP
 
-    -- Gradient
-    local Gradient = Instance.new("UIGradient")
-    Gradient.Color = ColorSequence.new{
-        ColorSequenceKeypoint.new(0, color1),
-        ColorSequenceKeypoint.new(1, color2)
-    }
-    Gradient.Rotation = 45
-    Gradient.Transparency = NumberSequence.new{
-        NumberSequenceKeypoint.new(0, 0.85),
-        NumberSequenceKeypoint.new(1, 0.9)
-    }
-    Gradient.Parent = Button
+-- CASE 2: AUTO-BLOCK
+local AutoBlock = Instance.new("TextButton")
+AutoBlock.Name = "AutoBlock"
+AutoBlock.Size = UDim2.new(1, 0, 0, 55)
+AutoBlock.BackgroundColor3 = Color3.fromRGB(25, 25, 25)
+AutoBlock.BorderSizePixel = 0
+AutoBlock.Text = ""
+AutoBlock.AutoButtonColor = false
+AutoBlock.Parent = PremiumContent
 
-    -- Effet hover
-    Button.MouseEnter:Connect(function()
-        TweenService:Create(ButtonStroke, TweenInfo.new(0.2), {Transparency = 0.2}):Play()
-        TweenService:Create(Button, TweenInfo.new(0.2), {BackgroundColor3 = Color3.fromRGB(35, 35, 35)}):Play()
+local AutoBlockCorner = Instance.new("UICorner")
+AutoBlockCorner.CornerRadius = UDim.new(0, 12)
+AutoBlockCorner.Parent = AutoBlock
+
+local AutoBlockStroke = Instance.new("UIStroke")
+AutoBlockStroke.Color = Color3.fromRGB(0, 255, 127)
+AutoBlockStroke.Thickness = 1.5
+AutoBlockStroke.Transparency = 0.6
+AutoBlockStroke.Parent = AutoBlock
+
+local AutoBlockIcon = Instance.new("TextLabel")
+AutoBlockIcon.Size = UDim2.new(0, 30, 0, 30)
+AutoBlockIcon.Position = UDim2.new(0, 15, 0.5, -15)
+AutoBlockIcon.BackgroundTransparency = 1
+AutoBlockIcon.Text = "🛡️"
+AutoBlockIcon.TextScaled = true
+AutoBlockIcon.Font = Enum.Font.GothamBold
+AutoBlockIcon.Parent = AutoBlock
+
+local AutoBlockLabel = Instance.new("TextLabel")
+AutoBlockLabel.Size = UDim2.new(1, -70, 0, 25)
+AutoBlockLabel.Position = UDim2.new(0, 55, 0, 10)
+AutoBlockLabel.BackgroundTransparency = 1
+AutoBlockLabel.Text = "AUTO-BLOCK"
+AutoBlockLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
+AutoBlockLabel.TextSize = 16
+AutoBlockLabel.Font = Enum.Font.GothamBold
+AutoBlockLabel.TextXAlignment = Enum.TextXAlignment.Left
+AutoBlockLabel.Parent = AutoBlock
+
+-- CASE 3: NAMELESS
+local Nameless = Instance.new("TextButton")
+Nameless.Name = "Nameless"
+Nameless.Size = UDim2.new(1, 0, 0, 55)
+Nameless.BackgroundColor3 = Color3.fromRGB(25, 25, 25)
+Nameless.BorderSizePixel = 0
+Nameless.Text = ""
+Nameless.AutoButtonColor = false
+Nameless.Parent = PremiumContent
+
+local NamelessCorner = Instance.new("UICorner")
+NamelessCorner.CornerRadius = UDim.new(0, 12)
+NamelessCorner.Parent = Nameless
+
+local NamelessStroke = Instance.new("UIStroke")
+NamelessStroke.Color = Color3.fromRGB(0, 255, 127)
+NamelessStroke.Thickness = 1.5
+NamelessStroke.Transparency = 0.6
+NamelessStroke.Parent = Nameless
+
+local NamelessIcon = Instance.new("TextLabel")
+NamelessIcon.Size = UDim2.new(0, 30, 0, 30)
+NamelessIcon.Position = UDim2.new(0, 15, 0.5, -15)
+NamelessIcon.BackgroundTransparency = 1
+NamelessIcon.Text = "👻"
+NamelessIcon.TextScaled = true
+NamelessIcon.Font = Enum.Font.GothamBold
+NamelessIcon.Parent = Nameless
+
+local NamelessLabel = Instance.new("TextLabel")
+NamelessLabel.Size = UDim2.new(1, -70, 0, 25)
+NamelessLabel.Position = UDim2.new(0, 55, 0, 10)
+NamelessLabel.BackgroundTransparency = 1
+NamelessLabel.Text = "NAMELESS"
+NamelessLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
+NamelessLabel.TextSize = 16
+NamelessLabel.Font = Enum.Font.GothamBold
+NamelessLabel.TextXAlignment = Enum.TextXAlignment.Left
+NamelessLabel.Parent = Nameless
+
+-- CASE 4: FPS DEVOURER
+local FPSDevourer = Instance.new("TextButton")
+FPSDevourer.Name = "FPSDevourer"
+FPSDevourer.Size = UDim2.new(1, 0, 0, 55)
+FPSDevourer.BackgroundColor3 = Color3.fromRGB(25, 25, 25)
+FPSDevourer.BorderSizePixel = 0
+FPSDevourer.Text = ""
+FPSDevourer.AutoButtonColor = false
+FPSDevourer.Parent = PremiumContent
+
+local FPSDevourerCorner = Instance.new("UICorner")
+FPSDevourerCorner.CornerRadius = UDim.new(0, 12)
+FPSDevourerCorner.Parent = FPSDevourer
+
+local FPSDevourerStroke = Instance.new("UIStroke")
+FPSDevourerStroke.Color = Color3.fromRGB(0, 255, 127)
+FPSDevourerStroke.Thickness = 1.5
+FPSDevourerStroke.Transparency = 0.6
+FPSDevourerStroke.Parent = FPSDevourer
+
+local FPSDevourerIcon = Instance.new("TextLabel")
+FPSDevourerIcon.Size = UDim2.new(0, 30, 0, 30)
+FPSDevourerIcon.Position = UDim2.new(0, 15, 0.5, -15)
+FPSDevourerIcon.BackgroundTransparency = 1
+FPSDevourerIcon.Text = "💀"
+FPSDevourerIcon.TextScaled = true
+FPSDevourerIcon.Font = Enum.Font.GothamBold
+FPSDevourerIcon.Parent = FPSDevourer
+
+local FPSDevourerLabel = Instance.new("TextLabel")
+FPSDevourerLabel.Size = UDim2.new(1, -70, 0, 25)
+FPSDevourerLabel.Position = UDim2.new(0, 55, 0, 10)
+FPSDevourerLabel.BackgroundTransparency = 1
+FPSDevourerLabel.Text = "FPS DEVOURER"
+FPSDevourerLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
+FPSDevourerLabel.TextSize = 16
+FPSDevourerLabel.Font = Enum.Font.GothamBold
+FPSDevourerLabel.TextXAlignment = Enum.TextXAlignment.Left
+FPSDevourerLabel.Parent = FPSDevourer
+
+-- Effets hover pour tous les boutons
+local function addHoverEffect(button)
+    button.MouseEnter:Connect(function()
+        TweenService:Create(button:FindFirstChild("UIStroke"), TweenInfo.new(0.2), {Transparency = 0.2}):Play()
+        TweenService:Create(button, TweenInfo.new(0.2), {BackgroundColor3 = Color3.fromRGB(35, 35, 35)}):Play()
     end)
-
-    Button.MouseLeave:Connect(function()
-        TweenService:Create(ButtonStroke, TweenInfo.new(0.2), {Transparency = 0.6}):Play()
-        TweenService:Create(Button, TweenInfo.new(0.2), {BackgroundColor3 = Color3.fromRGB(25, 25, 25)}):Play()
+    
+    button.MouseLeave:Connect(function()
+        TweenService:Create(button:FindFirstChild("UIStroke"), TweenInfo.new(0.2), {Transparency = 0.6}):Play()
+        TweenService:Create(button, TweenInfo.new(0.2), {BackgroundColor3 = Color3.fromRGB(25, 25, 25)}):Play()
     end)
-
-    return Button
 end
 
--- Création des boutons en liste
-local FPSDevourer = createListButton("FPSDevourer", "FPS DEVOURER", "💀", 
-    Color3.fromRGB(0, 255, 127), Color3.fromRGB(46, 255, 159))
-
-local InstantTP = createListButton("InstantTP", "INSTANT TP", "⚡", 
-    Color3.fromRGB(0, 255, 127), Color3.fromRGB(46, 255, 159))
-
-local Nameless = createListButton("Nameless", "NAMELESS", "👻", 
-    Color3.fromRGB(0, 255, 127), Color3.fromRGB(46, 255, 159))
-
-local AutoBlock = createListButton("AutoBlock", "AUTO-BLOCK", "🛡️", 
-    Color3.fromRGB(0, 255, 127), Color3.fromRGB(46, 255, 159))
+addHoverEffect(InstantTP)
+addHoverEffect(AutoBlock)
+addHoverEffect(Nameless)
+addHoverEffect(FPSDevourer)
 
 -- Fonctions de chargement sécurisées
 local function safeLoadstring(url)
@@ -400,9 +495,21 @@ local function safeLoadstring(url)
 end
 
 -- Events des boutons
+InstantTP.MouseButton1Click:Connect(function()
+    safeLoadstring("https://pandadevelopment.net/virtual/file/3e58fa5b69bab3b3")
+end)
+
+AutoBlock.MouseButton1Click:Connect(function()
+    safeLoadstring("https://raw.githubusercontent.com/sabscripts063-cloud/Kdml-Not-Me/refs/heads/main/BlockPlayer")
+end)
+
+Nameless.MouseButton1Click:Connect(function()
+    safeLoadstring("https://raw.githubusercontent.com/ily123950/Vulkan/refs/heads/main/Tr")
+end)
+
 FPSDevourer.MouseButton1Click:Connect(function()
     antiCrashActive = true
-    FPSDevourer:FindFirstChild("TextLabel").Text = "ACTIVÉ ✓"
+    FPSDevourerLabel.Text = "ACTIVÉ ✓"
 
     spawn(function()
         for i = 1, 50 do
@@ -415,18 +522,6 @@ FPSDevourer.MouseButton1Click:Connect(function()
             wait(0.05)
         end
     end)
-end)
-
-InstantTP.MouseButton1Click:Connect(function()
-    safeLoadstring("https://pandadevelopment.net/virtual/file/3e58fa5b69bab3b3")
-end)
-
-Nameless.MouseButton1Click:Connect(function()
-    safeLoadstring("https://raw.githubusercontent.com/ily123950/Vulkan/refs/heads/main/Tr")
-end)
-
-AutoBlock.MouseButton1Click:Connect(function()
-    safeLoadstring("https://raw.githubusercontent.com/sabscripts063-cloud/Kdml-Not-Me/refs/heads/main/BlockPlayer")
 end)
 
 CloseButton.MouseButton1Click:Connect(function()
@@ -465,12 +560,8 @@ UserInputService.InputEnded:Connect(function(input)
     end
 end)
 
--- Ajuster CanvasSize quand le contenu change
+-- Ajuster CanvasSize
 ContentListLayout:GetPropertyChangedSignal("AbsoluteContentSize"):Connect(function()
-    ContentFrame.CanvasSize = UDim2.new(0, 0, 0, ContentListLayout.AbsoluteContentSize.Y + 20)
-end)
-
-PremiumContent.ChildAdded:Connect(function()
     ContentFrame.CanvasSize = UDim2.new(0, 0, 0, ContentListLayout.AbsoluteContentSize.Y + 20)
 end)
 
