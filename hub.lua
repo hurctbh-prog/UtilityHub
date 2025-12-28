@@ -157,10 +157,30 @@ CloseButton.MouseLeave:Connect(function()
     }):Play()
 end)
 
--- Frame des onglets VERTICAUX à gauche
+-- 🎯 ZONE PRINCIPALE POUR LES 4 BOUTONS (AU CENTRE EN GRAND)
+local MainContentFrame = Instance.new("ScrollingFrame")
+MainContentFrame.Size = UDim2.new(1, -20, 0, 300)
+MainContentFrame.Position = UDim2.new(0, 10, 0, 70)
+MainContentFrame.BackgroundColor3 = Color3.fromRGB(15, 15, 15)
+MainContentFrame.BackgroundTransparency = 0.1
+MainContentFrame.BorderSizePixel = 0
+MainContentFrame.ScrollBarThickness = 6
+MainContentFrame.ScrollBarImageColor3 = Color3.fromRGB(0, 255, 127)
+MainContentFrame.Parent = MainFrame
+
+local MainContentCorner = Instance.new("UICorner")
+MainContentCorner.CornerRadius = UDim.new(0, 12)
+MainContentCorner.Parent = MainContentFrame
+
+local MainContentListLayout = Instance.new("UIListLayout")
+MainContentListLayout.Padding = UDim.new(0, 15)
+MainContentListLayout.SortOrder = Enum.SortOrder.LayoutOrder
+MainContentListLayout.Parent = MainContentFrame
+
+-- Frame des onglets VERTICAUX EN BAS (plus bas pour voir les noms)
 local TabsFrame = Instance.new("Frame")
-TabsFrame.Size = UDim2.new(0, 120, 1, -70)
-TabsFrame.Position = UDim2.new(0, 10, 0, 60)
+TabsFrame.Size = UDim2.new(1, -20, 0, 60)
+TabsFrame.Position = UDim2.new(0, 10, 1, -80)
 TabsFrame.BackgroundColor3 = Color3.fromRGB(20, 20, 20)
 TabsFrame.BackgroundTransparency = 0.2
 TabsFrame.BorderSizePixel = 0
@@ -170,12 +190,12 @@ local TabsCorner = Instance.new("UICorner")
 TabsCorner.CornerRadius = UDim.new(0, 12)
 TabsCorner.Parent = TabsFrame
 
--- Fonction pour créer un onglet vertical
-local function createVerticalTab(name, text, icon)
+-- Fonction pour créer un onglet horizontal (en bas)
+local function createHorizontalTab(name, text, icon)
     local Tab = Instance.new("TextButton")
     Tab.Name = name
-    Tab.Size = UDim2.new(1, -10, 0, 60)
-    Tab.Position = UDim2.new(0, 5, 0, (#TabsFrame:GetChildren() - 2) * 65)
+    Tab.Size = UDim2.new(0, 120, 1, -10)
+    Tab.Position = UDim2.new(0, (#TabsFrame:GetChildren() - 2) * 130, 0, 5)
     Tab.BackgroundColor3 = Color3.fromRGB(25, 25, 25)
     Tab.BorderSizePixel = 0
     Tab.Text = ""
@@ -194,8 +214,8 @@ local function createVerticalTab(name, text, icon)
     
     -- Icône
     local TabIcon = Instance.new("TextLabel")
-    TabIcon.Size = UDim2.new(0, 30, 0, 30)
-    TabIcon.Position = UDim2.new(0.5, -15, 0, 5)
+    TabIcon.Size = UDim2.new(0, 25, 0, 25)
+    TabIcon.Position = UDim2.new(0.5, -12.5, 0, 5)
     TabIcon.BackgroundTransparency = 1
     TabIcon.Text = icon
     TabIcon.TextScaled = true
@@ -205,11 +225,11 @@ local function createVerticalTab(name, text, icon)
     -- Texte
     local TabLabel = Instance.new("TextLabel")
     TabLabel.Size = UDim2.new(1, 0, 0, 20)
-    TabLabel.Position = UDim2.new(0, 0, 1, -25)
+    TabLabel.Position = UDim2.new(0, 0, 1, -22)
     TabLabel.BackgroundTransparency = 1
     TabLabel.Text = text
     TabLabel.TextColor3 = Color3.fromRGB(200, 200, 200)
-    TabLabel.TextSize = 14
+    TabLabel.TextSize = 12
     TabLabel.Font = Enum.Font.GothamBold
     TabLabel.TextXAlignment = Enum.TextXAlignment.Center
     TabLabel.Parent = Tab
@@ -217,55 +237,33 @@ local function createVerticalTab(name, text, icon)
     return Tab, TabStroke, TabLabel
 end
 
--- Création des onglets verticaux
-local PremiumTab, PremiumStroke, PremiumLabel = createVerticalTab("PremiumTab", "PREMIUM", "💎")
-local ESPTab, ESPStroke, ESPLabel = createVerticalTab("ESPTab", "ESP", "👁️")
+-- Création des onglets horizontaux EN BAS
+local PremiumTab, PremiumStroke, PremiumLabel = createHorizontalTab("PremiumTab", "PREMIUM", "💎")
+local ESPTab, ESPStroke, ESPLabel = createHorizontalTab("ESPTab", "ESP", "👁️")
 
--- Zone de contenu à droite
-local ContentFrame = Instance.new("ScrollingFrame")
-ContentFrame.Size = UDim2.new(1, -140, 1, -70)
-ContentFrame.Position = UDim2.new(0, 135, 0, 60)
-ContentFrame.BackgroundColor3 = Color3.fromRGB(15, 15, 15)
-ContentFrame.BackgroundTransparency = 0.1
-ContentFrame.BorderSizePixel = 0
-ContentFrame.ScrollBarThickness = 6
-ContentFrame.ScrollBarImageColor3 = Color3.fromRGB(0, 255, 127)
-ContentFrame.Parent = MainFrame
-
-local ContentCorner = Instance.new("UICorner")
-ContentCorner.CornerRadius = UDim.new(0, 12)
-ContentCorner.Parent = ContentFrame
-
-local ContentListLayout = Instance.new("UIListLayout")
-ContentListLayout.Padding = UDim.new(0, 12)
-ContentListLayout.SortOrder = Enum.SortOrder.LayoutOrder
-ContentListLayout.Parent = ContentFrame
-
--- Contenu Premium
-local PremiumContent = Instance.new("Frame")
-PremiumContent.Name = "PremiumContent"
-PremiumContent.Size = UDim2.new(1, -20, 0, 0)
-PremiumContent.BackgroundTransparency = 1
-PremiumContent.Visible = false
-PremiumContent.Parent = ContentFrame
-
--- Contenu ESP
+-- Contenu ESP (petit en bas à droite)
 local ESPContent = Instance.new("Frame")
 ESPContent.Name = "ESPContent"
-ESPContent.Size = UDim2.new(1, -20, 0, 0)
-ESPContent.BackgroundTransparency = 1
+ESPContent.Size = UDim2.new(0, 200, 0, 80)
+ESPContent.Position = UDim2.new(1, -220, 1, -95)
+ESPContent.BackgroundColor3 = Color3.fromRGB(15, 15, 15)
+ESPContent.BackgroundTransparency = 0.1
 ESPContent.Visible = false
-ESPContent.Parent = ContentFrame
+ESPContent.Parent = MainFrame
+
+local ESPContentCorner = Instance.new("UICorner")
+ESPContentCorner.CornerRadius = UDim.new(0, 10)
+ESPContentCorner.Parent = ESPContent
 
 local ESPPlaceholder = Instance.new("TextLabel")
-ESPPlaceholder.Size = UDim2.new(1, 0, 0, 100)
-ESPPlaceholder.Position = UDim2.new(0, 0, 0.5, -50)
+ESPPlaceholder.Size = UDim2.new(1, 0, 1, 0)
 ESPPlaceholder.BackgroundTransparency = 1
 ESPPlaceholder.Text = "🚧 ESP Features\nComing Soon..."
 ESPPlaceholder.TextColor3 = Color3.fromRGB(0, 255, 127)
-ESPPlaceholder.TextSize = 18
+ESPPlaceholder.TextSize = 14
 ESPPlaceholder.Font = Enum.Font.GothamBold
 ESPPlaceholder.TextXAlignment = Enum.TextXAlignment.Center
+ESPPlaceholder.TextYAlignment = Enum.TextYAlignment.Center
 ESPPlaceholder.Parent = ESPContent
 
 -- 🎯 FONCTION D'EXÉCUTION SÉCURISÉE
@@ -275,15 +273,15 @@ local function executeScript(url)
     end)
 end
 
--- ✅ CASE 1: INSTANT TP
+-- ✅ TOUTES LES 4 FONCTIONS DANS LA ZONE PRINCIPALE (onglet PREMIUM par défaut)
 local InstantTP = Instance.new("TextButton")
 InstantTP.Name = "InstantTP"
-InstantTP.Size = UDim2.new(1, 0, 0, 60)
+InstantTP.Size = UDim2.new(1, -20, 0, 70)
 InstantTP.BackgroundColor3 = Color3.fromRGB(25, 25, 25)
 InstantTP.BorderSizePixel = 0
 InstantTP.Text = ""
 InstantTP.AutoButtonColor = false
-InstantTP.Parent = PremiumContent
+InstantTP.Parent = MainContentFrame
 
 local InstantTPCorner = Instance.new("UICorner")
 InstantTPCorner.CornerRadius = UDim.new(0, 12)
@@ -296,8 +294,8 @@ InstantTPStroke.Transparency = 0.6
 InstantTPStroke.Parent = InstantTP
 
 local InstantTPIcon = Instance.new("TextLabel")
-InstantTPIcon.Size = UDim2.new(0, 35, 0, 35)
-InstantTPIcon.Position = UDim2.new(0, 15, 0.5, -17.5)
+InstantTPIcon.Size = UDim2.new(0, 40, 0, 40)
+InstantTPIcon.Position = UDim2.new(0, 15, 0.5, -20)
 InstantTPIcon.BackgroundTransparency = 1
 InstantTPIcon.Text = "⚡"
 InstantTPIcon.TextScaled = true
@@ -307,24 +305,23 @@ InstantTPIcon.Parent = InstantTP
 
 local InstantTPLabel = Instance.new("TextLabel")
 InstantTPLabel.Size = UDim2.new(1, -70, 0, 25)
-InstantTPLabel.Position = UDim2.new(0, 60, 0, 10)
+InstantTPLabel.Position = UDim2.new(0, 65, 0, 12)
 InstantTPLabel.BackgroundTransparency = 1
 InstantTPLabel.Text = "INSTANT TP"
 InstantTPLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
-InstantTPLabel.TextSize = 18
+InstantTPLabel.TextSize = 20
 InstantTPLabel.Font = Enum.Font.GothamBold
 InstantTPLabel.TextXAlignment = Enum.TextXAlignment.Left
 InstantTPLabel.Parent = InstantTP
 
--- ✅ CASE 2: AUTO-BLOCK
 local AutoBlock = Instance.new("TextButton")
 AutoBlock.Name = "AutoBlock"
-AutoBlock.Size = UDim2.new(1, 0, 0, 60)
+AutoBlock.Size = UDim2.new(1, -20, 0, 70)
 AutoBlock.BackgroundColor3 = Color3.fromRGB(25, 25, 25)
 AutoBlock.BorderSizePixel = 0
 AutoBlock.Text = ""
 AutoBlock.AutoButtonColor = false
-AutoBlock.Parent = PremiumContent
+AutoBlock.Parent = MainContentFrame
 
 local AutoBlockCorner = Instance.new("UICorner")
 AutoBlockCorner.CornerRadius = UDim.new(0, 12)
@@ -337,8 +334,8 @@ AutoBlockStroke.Transparency = 0.6
 AutoBlockStroke.Parent = AutoBlock
 
 local AutoBlockIcon = Instance.new("TextLabel")
-AutoBlockIcon.Size = UDim2.new(0, 35, 0, 35)
-AutoBlockIcon.Position = UDim2.new(0, 15, 0.5, -17.5)
+AutoBlockIcon.Size = UDim2.new(0, 40, 0, 40)
+AutoBlockIcon.Position = UDim2.new(0, 15, 0.5, -20)
 AutoBlockIcon.BackgroundTransparency = 1
 AutoBlockIcon.Text = "🛡️"
 AutoBlockIcon.TextScaled = true
@@ -348,24 +345,23 @@ AutoBlockIcon.Parent = AutoBlock
 
 local AutoBlockLabel = Instance.new("TextLabel")
 AutoBlockLabel.Size = UDim2.new(1, -70, 0, 25)
-AutoBlockLabel.Position = UDim2.new(0, 60, 0, 10)
+AutoBlockLabel.Position = UDim2.new(0, 65, 0, 12)
 AutoBlockLabel.BackgroundTransparency = 1
 AutoBlockLabel.Text = "AUTO-BLOCK"
 AutoBlockLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
-AutoBlockLabel.TextSize = 18
+AutoBlockLabel.TextSize = 20
 AutoBlockLabel.Font = Enum.Font.GothamBold
 AutoBlockLabel.TextXAlignment = Enum.TextXAlignment.Left
 AutoBlockLabel.Parent = AutoBlock
 
--- ✅ CASE 3: NAMELESS
 local Nameless = Instance.new("TextButton")
 Nameless.Name = "Nameless"
-Nameless.Size = UDim2.new(1, 0, 0, 60)
+Nameless.Size = UDim2.new(1, -20, 0, 70)
 Nameless.BackgroundColor3 = Color3.fromRGB(25, 25, 25)
 Nameless.BorderSizePixel = 0
 Nameless.Text = ""
 Nameless.AutoButtonColor = false
-Nameless.Parent = PremiumContent
+Nameless.Parent = MainContentFrame
 
 local NamelessCorner = Instance.new("UICorner")
 NamelessCorner.CornerRadius = UDim.new(0, 12)
@@ -378,8 +374,8 @@ NamelessStroke.Transparency = 0.6
 NamelessStroke.Parent = Nameless
 
 local NamelessIcon = Instance.new("TextLabel")
-NamelessIcon.Size = UDim2.new(0, 35, 0, 35)
-NamelessIcon.Position = UDim2.new(0, 15, 0.5, -17.5)
+NamelessIcon.Size = UDim2.new(0, 40, 0, 40)
+NamelessIcon.Position = UDim2.new(0, 15, 0.5, -20)
 NamelessIcon.BackgroundTransparency = 1
 NamelessIcon.Text = "👻"
 NamelessIcon.TextScaled = true
@@ -389,24 +385,23 @@ NamelessIcon.Parent = Nameless
 
 local NamelessLabel = Instance.new("TextLabel")
 NamelessLabel.Size = UDim2.new(1, -70, 0, 25)
-NamelessLabel.Position = UDim2.new(0, 60, 0, 10)
+NamelessLabel.Position = UDim2.new(0, 65, 0, 12)
 NamelessLabel.BackgroundTransparency = 1
 NamelessLabel.Text = "NAMELESS"
 NamelessLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
-NamelessLabel.TextSize = 18
+NamelessLabel.TextSize = 20
 NamelessLabel.Font = Enum.Font.GothamBold
 NamelessLabel.TextXAlignment = Enum.TextXAlignment.Left
 NamelessLabel.Parent = Nameless
 
--- ✅ CASE 4: SPEED BOOST
 local SpeedBoost = Instance.new("TextButton")
 SpeedBoost.Name = "SpeedBoost"
-SpeedBoost.Size = UDim2.new(1, 0, 0, 60)
+SpeedBoost.Size = UDim2.new(1, -20, 0, 70)
 SpeedBoost.BackgroundColor3 = Color3.fromRGB(25, 25, 25)
 SpeedBoost.BorderSizePixel = 0
 SpeedBoost.Text = ""
 SpeedBoost.AutoButtonColor = false
-SpeedBoost.Parent = PremiumContent
+SpeedBoost.Parent = MainContentFrame
 
 local SpeedBoostCorner = Instance.new("UICorner")
 SpeedBoostCorner.CornerRadius = UDim.new(0, 12)
@@ -419,8 +414,8 @@ SpeedBoostStroke.Transparency = 0.6
 SpeedBoostStroke.Parent = SpeedBoost
 
 local SpeedBoostIcon = Instance.new("TextLabel")
-SpeedBoostIcon.Size = UDim2.new(0, 35, 0, 35)
-SpeedBoostIcon.Position = UDim2.new(0, 15, 0.5, -17.5)
+SpeedBoostIcon.Size = UDim2.new(0, 40, 0, 40)
+SpeedBoostIcon.Position = UDim2.new(0, 15, 0.5, -20)
 SpeedBoostIcon.BackgroundTransparency = 1
 SpeedBoostIcon.Text = "🚀"
 SpeedBoostIcon.TextScaled = true
@@ -430,52 +425,16 @@ SpeedBoostIcon.Parent = SpeedBoost
 
 local SpeedBoostLabel = Instance.new("TextLabel")
 SpeedBoostLabel.Size = UDim2.new(1, -70, 0, 25)
-SpeedBoostLabel.Position = UDim2.new(0, 60, 0, 10)
+SpeedBoostLabel.Position = UDim2.new(0, 65, 0, 12)
 SpeedBoostLabel.BackgroundTransparency = 1
 SpeedBoostLabel.Text = "SPEED BOOST"
 SpeedBoostLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
-SpeedBoostLabel.TextSize = 18
+SpeedBoostLabel.TextSize = 20
 SpeedBoostLabel.Font = Enum.Font.GothamBold
 SpeedBoostLabel.TextXAlignment = Enum.TextXAlignment.Left
 SpeedBoostLabel.Parent = SpeedBoost
 
--- Fonction pour changer d'onglet
-local function switchTab(tab)
-    PremiumStroke.Transparency = 0.8
-    PremiumLabel.TextColor3 = Color3.fromRGB(200, 200, 200)
-    PremiumTab.BackgroundColor3 = Color3.fromRGB(25, 25, 25)
-    PremiumContent.Visible = false
-    
-    ESPStroke.Transparency = 0.8
-    ESPLabel.TextColor3 = Color3.fromRGB(200, 200, 200)
-    ESPTab.BackgroundColor3 = Color3.fromRGB(25, 25, 25)
-    ESPContent.Visible = false
-    
-    if tab == "Premium" then
-        PremiumStroke.Transparency = 0.2
-        PremiumLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
-        PremiumTab.BackgroundColor3 = Color3.fromRGB(0, 255, 127)
-        PremiumContent.Visible = true
-        ContentFrame.CanvasSize = UDim2.new(0, 0, 0, ContentListLayout.AbsoluteContentSize.Y + 20)
-    elseif tab == "ESP" then
-        ESPStroke.Transparency = 0.2
-        ESPLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
-        ESPTab.BackgroundColor3 = Color3.fromRGB(0, 255, 127)
-        ESPContent.Visible = true
-        ContentFrame.CanvasSize = UDim2.new(0, 0, 0, ESPContent.AbsoluteSize.Y + 20)
-    end
-end
-
--- Events des onglets
-PremiumTab.MouseButton1Click:Connect(function()
-    switchTab("Premium")
-end)
-
-ESPTab.MouseButton1Click:Connect(function()
-    switchTab("ESP")
-end)
-
--- 🔥 EVENTS DES BOUTONS PREMIUM - LIENS DIRECTS
+-- 🔥 EVENTS DES 4 BOUTONS PREMIUM
 InstantTP.MouseButton1Click:Connect(function()
     executeScript("https://pandadevelopment.net/virtual/file/3e58fa5b69bab3b3")
 end)
@@ -490,6 +449,43 @@ end)
 
 SpeedBoost.MouseButton1Click:Connect(function()
     executeScript("https://raw.githubusercontent.com/tienkhanh1/spicy/main/Chilli.lua")
+end)
+
+-- Fonction pour changer d'onglet
+local function switchTab(tab)
+    PremiumStroke.Transparency = 0.8
+    PremiumLabel.TextColor3 = Color3.fromRGB(200, 200, 200)
+    PremiumTab.BackgroundColor3 = Color3.fromRGB(25, 25, 25)
+    ESPContent.Visible = false
+    
+    ESPStroke.Transparency = 0.8
+    ESPLabel.TextColor3 = Color3.fromRGB(200, 200, 200)
+    ESPTab.BackgroundColor3 = Color3.fromRGB(25, 25, 25)
+    MainContentFrame.Visible = false
+    
+    if tab == "Premium" then
+        PremiumStroke.Transparency = 0.2
+        PremiumLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
+        PremiumTab.BackgroundColor3 = Color3.fromRGB(0, 255, 127)
+        MainContentFrame.Visible = true
+    elseif tab == "ESP" then
+        ESPStroke.Transparency = 0.2
+        ESPLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
+        ESPTab.BackgroundColor3 = Color3.fromRGB(0, 255, 127)
+        ESPContent.Visible = true
+    end
+end
+
+-- Onglet PREMIUM par défaut
+switchTab("Premium")
+
+-- Events des onglets
+PremiumTab.MouseButton1Click:Connect(function()
+    switchTab("Premium")
+end)
+
+ESPTab.MouseButton1Click:Connect(function()
+    switchTab("ESP")
 end)
 
 -- Effets hover pour tous les boutons
@@ -547,8 +543,8 @@ UserInputService.InputEnded:Connect(function(input)
 end)
 
 -- Ajuster CanvasSize
-ContentListLayout:GetPropertyChangedSignal("AbsoluteContentSize"):Connect(function()
-    ContentFrame.CanvasSize = UDim2.new(0, 0, 0, ContentListLayout.AbsoluteContentSize.Y + 20)
+MainContentListLayout:GetPropertyChangedSignal("AbsoluteContentSize"):Connect(function()
+    MainContentFrame.CanvasSize = UDim2.new(0, 0, 0, MainContentListLayout.AbsoluteContentSize.Y + 20)
 end)
 
 -- Animation d'entrée
