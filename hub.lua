@@ -1,561 +1,225 @@
--- SLAYZHUB XENO GO v4.2 🔥 INTERFACE MODERNE PREMIUM
--- 4 CASES FONCTIONNELLES - LIENS DIRECTS
+-- 🔥 FPS TRAINER AIMBOT - AUTO AIM + CLICK
+-- Vise les points ROUGES et clique automatiquement
 
 local Players = game:GetService("Players")
-local TweenService = game:GetService("TweenService")
 local UserInputService = game:GetService("UserInputService")
-local HttpService = game:GetService("HttpService")
-local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local RunService = game:GetService("RunService")
+local TweenService = game:GetService("TweenService")
 
 local player = Players.LocalPlayer
-local playerGui = player:WaitForChild("PlayerGui")
+local mouse = player:GetMouse()
+local camera = workspace.CurrentCamera
 
--- Anti-crash system
-local antiCrashActive = false
-local safeFolder = Instance.new("Folder")
-safeFolder.Name = "SlayzSafe"
-safeFolder.Parent = workspace
+-- ⚙️ CONFIGURATION
+local AIMBOT_ENABLED = true
+local AIM_SPEED = 0.15  -- Vitesse de visée (plus petit = plus rapide)
+local CLICK_SPEED = 0.1  -- Vitesse de clic (plus petit = plus rapide)
+local MAX_DISTANCE = 500 -- Distance max pour détecter les cibles
+local FOV_RADIUS = 150   -- Rayon de détection (FOV)
 
--- Nettoyage anti-crash
-spawn(function()
-    while wait(0.5) do
-        pcall(function()
-            for _, obj in pairs(workspace:GetChildren()) do
-                if obj.Name:find("FPSKiller") or obj.Name:find("ParticleHell") then
-                    if obj.Parent ~= safeFolder then
-                        obj:Destroy()
-                    end
+-- Variables
+local closestTarget = nil
+local lastClick = 0
+
+-- 🔍 FONCTION DETECTION POINTS ROUGES
+local function findRedTargets()
+    local targets = {}
+    local closest = nil
+    local shortestDistance = math.huge
+    
+    for _, obj in pairs(workspace:GetDescendants()) do
+        -- Détecte les points/particules ROUGES
+        if obj:IsA("BasePart") or obj:IsA("MeshPart") then
+            local color = obj.Color
+            local size = obj.Size
+            
+            -- Critères pour points rouges (petits + rouge vif)
+            if color and (color.R > 0.7 and color.G < 0.4 and color.B < 0.4) and 
+               size.Magnitude < 5 then
+                
+                local screenPos, onScreen = camera:WorldToViewportPoint(obj.Position)
+                local distance = (Vector2.new(screenPos.X, screenPos.Y) - Vector2.new(mouse.X, mouse.Y)).Magnitude
+                
+                if onScreen and distance < MAX_DISTANCE and distance < shortestDistance then
+                    closest = {
+                        position = obj.Position,
+                        screenPos = Vector2.new(screenPos.X, screenPos.Y),
+                        distance = distance,
+                        object = obj
+                    }
+                    shortestDistance = distance
                 end
             end
-        end)
-    end
-end)
-
--- ScreenGui principal
-local ScreenGui = Instance.new("ScreenGui")
-ScreenGui.Name = "SlayzHubModern"
-ScreenGui.Parent = playerGui
-ScreenGui.ResetOnSpawn = false
-ScreenGui.DisplayOrder = 2147483647
-ScreenGui.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
-
--- Frame principale ÉLARGIE (600x550)
-local MainFrame = Instance.new("Frame")
-MainFrame.Name = "MainFrame"
-MainFrame.Size = UDim2.new(0, 600, 0, 550)
-MainFrame.Position = UDim2.new(0.5, -300, 0.5, -275)
-MainFrame.BackgroundColor3 = Color3.fromRGB(10, 10, 10)
-MainFrame.BackgroundTransparency = 0.05
-MainFrame.BorderSizePixel = 0
-MainFrame.Parent = ScreenGui
-
-local MainCorner = Instance.new("UICorner")
-MainCorner.CornerRadius = UDim.new(0, 15)
-MainCorner.Parent = MainFrame
-
--- Effet de bordure néon vert
-local BorderGlow = Instance.new("UIStroke")
-BorderGlow.Color = Color3.fromRGB(0, 255, 127)
-BorderGlow.Thickness = 2
-BorderGlow.Transparency = 0.3
-BorderGlow.Parent = MainFrame
-
--- Animation de la bordure
-spawn(function()
-    while wait() do
-        if MainFrame.Parent then
-            TweenService:Create(BorderGlow, TweenInfo.new(2, Enum.EasingStyle.Sine, Enum.EasingDirection.InOut), {
-                Color = Color3.fromRGB(46, 255, 159)
-            }):Play()
-            wait(2)
-            TweenService:Create(BorderGlow, TweenInfo.new(2, Enum.EasingStyle.Sine, Enum.EasingDirection.InOut), {
-                Color = Color3.fromRGB(0, 255, 127)
-            }):Play()
-        else
-            break
+        end
+        
+        -- Détecte aussi les attachments/particules rouges
+        if obj:IsA("Attachment") then
+            local parent = obj.Parent
+            if parent and parent.Color and parent.Color.R > 0.7 then
+                local screenPos, onScreen = camera:WorldToViewportPoint(obj.WorldPosition)
+                local distance = (Vector2.new(screenPos.X, screenPos.Y) - Vector2.new(mouse.X, mouse.Y)).Magnitude
+                
+                if onScreen and distance < MAX_DISTANCE and distance < shortestDistance then
+                    closest = {
+                        position = obj.WorldPosition,
+                        screenPos = Vector2.new(screenPos.X, screenPos.Y),
+                        distance = distance,
+                        object = obj
+                    }
+                    shortestDistance = distance
+                end
+            end
         end
     end
-end)
+    
+    return closest
+end
 
--- Barre de titre moderne
-local TitleBar = Instance.new("Frame")
-TitleBar.Size = UDim2.new(1, 0, 0, 50)
-TitleBar.BackgroundColor3 = Color3.fromRGB(15, 15, 15)
-TitleBar.BackgroundTransparency = 0.1
-TitleBar.BorderSizePixel = 0
-TitleBar.Parent = MainFrame
+-- 🎯 FONCTION AIMBOT
+local function aimAtTarget(target)
+    if not target then return end
+    
+    local targetScreenPos = target.screenPos
+    local currentMousePos = Vector2.new(mouse.X, mouse.Y)
+    local delta = targetScreenPos - currentMousePos
+    
+    -- Mouvement fluide vers la cible
+    local moveX = delta.X * (AIM_SPEED / 10)
+    local moveY = delta.Y * (AIM_SPEED / 10)
+    
+    -- Déplace la souris
+    mousemoverel(moveX, moveY)
+end
 
-local TitleCorner = Instance.new("UICorner")
-TitleCorner.CornerRadius = UDim.new(0, 15)
-TitleCorner.Parent = TitleBar
+-- 🔫 FONCTION AUTO-CLICK
+local function autoClick()
+    local currentTime = tick()
+    if currentTime - lastClick > CLICK_SPEED and closestTarget then
+        mouse1click()
+        lastClick = currentTime
+    end
+end
 
--- Logo et titre
-local LogoLabel = Instance.new("TextLabel")
-LogoLabel.Size = UDim2.new(0, 35, 0, 35)
-LogoLabel.Position = UDim2.new(0, 15, 0.5, -17.5)
-LogoLabel.BackgroundTransparency = 1
-LogoLabel.Text = "⚡"
-LogoLabel.TextScaled = true
-LogoLabel.Font = Enum.Font.GothamBold
-LogoLabel.TextColor3 = Color3.fromRGB(0, 255, 127)
-LogoLabel.Parent = TitleBar
+-- 🖥️ INTERFACE SIMPLE (optionnelle)
+local ScreenGui = Instance.new("ScreenGui")
+ScreenGui.Name = "FPSAimbot"
+ScreenGui.Parent = player:WaitForChild("PlayerGui")
+ScreenGui.ResetOnSpawn = false
+
+local InfoFrame = Instance.new("Frame")
+InfoFrame.Size = UDim2.new(0, 250, 0, 120)
+InfoFrame.Position = UDim2.new(0, 20, 0, 20)
+InfoFrame.BackgroundColor3 = Color3.fromRGB(20, 20, 20)
+InfoFrame.BackgroundTransparency = 0.1
+InfoFrame.Parent = ScreenGui
+
+local InfoCorner = Instance.new("UICorner")
+InfoCorner.CornerRadius = UDim.new(0, 10)
+InfoCorner.Parent = InfoFrame
+
+local InfoStroke = Instance.new("UIStroke")
+InfoStroke.Color = Color3.fromRGB(255, 0, 0)
+InfoStroke.Thickness = 2
+InfoStroke.Parent = InfoFrame
 
 local TitleLabel = Instance.new("TextLabel")
-TitleLabel.Size = UDim2.new(0, 250, 0, 25)
-TitleLabel.Position = UDim2.new(0, 55, 0, 10)
+TitleLabel.Size = UDim2.new(1, 0, 0, 30)
 TitleLabel.BackgroundTransparency = 1
-TitleLabel.Text = "SLAYZHUB PREMIUM"
+TitleLabel.Text = "🔥 FPS TRAINER AIMBOT"
 TitleLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
-TitleLabel.TextSize = 20
+TitleLabel.TextSize = 16
 TitleLabel.Font = Enum.Font.GothamBold
-TitleLabel.TextXAlignment = Enum.TextXAlignment.Left
-TitleLabel.Parent = TitleBar
+TitleLabel.Parent = InfoFrame
 
-local SubtitleLabel = Instance.new("TextLabel")
-SubtitleLabel.Size = UDim2.new(0, 250, 0, 15)
-SubtitleLabel.Position = UDim2.new(0, 55, 0, 32)
-SubtitleLabel.BackgroundTransparency = 1
-SubtitleLabel.Text = "v4.2 • 4 Scripts Premium • Anti-Crash"
-SubtitleLabel.TextColor3 = Color3.fromRGB(0, 255, 127)
-SubtitleLabel.TextSize = 12
-SubtitleLabel.Font = Enum.Font.Gotham
-SubtitleLabel.TextXAlignment = Enum.TextXAlignment.Left
-SubtitleLabel.Parent = TitleBar
+local StatusLabel = Instance.new("TextLabel")
+StatusLabel.Name = "StatusLabel"
+StatusLabel.Size = UDim2.new(1, 0, 0, 25)
+StatusLabel.Position = UDim2.new(0, 0, 0, 35)
+StatusLabel.BackgroundTransparency = 1
+StatusLabel.Text = "Status: Searching..."
+StatusLabel.TextColor3 = Color3.fromRGB(255, 255, 0)
+StatusLabel.TextSize = 14
+StatusLabel.Font = Enum.Font.Gotham
+StatusLabel.Parent = InfoFrame
 
--- Bouton fermer moderne
-local CloseButton = Instance.new("TextButton")
-CloseButton.Size = UDim2.new(0, 30, 0, 30)
-CloseButton.Position = UDim2.new(1, -40, 0.5, -15)
-CloseButton.BackgroundColor3 = Color3.fromRGB(25, 25, 25)
-CloseButton.Text = "×"
-CloseButton.TextColor3 = Color3.fromRGB(255, 255, 255)
-CloseButton.TextSize = 20
-CloseButton.Font = Enum.Font.GothamBold
-CloseButton.Parent = TitleBar
+local ToggleButton = Instance.new("TextButton")
+ToggleButton.Size = UDim2.new(1, -20, 0, 35)
+ToggleButton.Position = UDim2.new(0, 10, 0, 70)
+ToggleButton.BackgroundColor3 = Color3.fromRGB(255, 50, 50)
+ToggleButton.Text = "🟥 AIMBOT OFF"
+ToggleButton.TextColor3 = Color3.fromRGB(255, 255, 255)
+ToggleButton.TextSize = 16
+ToggleButton.Font = Enum.Font.GothamBold
+ToggleButton.Parent = InfoFrame
 
-local CloseCorner = Instance.new("UICorner")
-CloseCorner.CornerRadius = UDim.new(0, 8)
-CloseCorner.Parent = CloseButton
+local ToggleCorner = Instance.new("UICorner")
+ToggleCorner.CornerRadius = UDim.new(0, 8)
+ToggleCorner.Parent = ToggleButton
 
-local CloseStroke = Instance.new("UIStroke")
-CloseStroke.Color = Color3.fromRGB(0, 255, 127)
-CloseStroke.Thickness = 1.5
-CloseStroke.Transparency = 0.5
-CloseStroke.Parent = CloseButton
-
--- Effet hover sur le bouton fermer
-CloseButton.MouseEnter:Connect(function()
-    TweenService:Create(CloseButton, TweenInfo.new(0.2), {
-        BackgroundColor3 = Color3.fromRGB(200, 50, 50)
-    }):Play()
-end)
-
-CloseButton.MouseLeave:Connect(function()
-    TweenService:Create(CloseButton, TweenInfo.new(0.2), {
-        BackgroundColor3 = Color3.fromRGB(25, 25, 25)
-    }):Play()
-end)
-
--- 🎯 ZONE PRINCIPALE POUR LES 4 BOUTONS (AU CENTRE EN GRAND)
-local MainContentFrame = Instance.new("ScrollingFrame")
-MainContentFrame.Size = UDim2.new(1, -40, 0, 320)
-MainContentFrame.Position = UDim2.new(0, 20, 0, 70)
-MainContentFrame.BackgroundColor3 = Color3.fromRGB(15, 15, 15)
-MainContentFrame.BackgroundTransparency = 0.1
-MainContentFrame.BorderSizePixel = 0
-MainContentFrame.ScrollBarThickness = 6
-MainContentFrame.ScrollBarImageColor3 = Color3.fromRGB(0, 255, 127)
-MainContentFrame.Parent = MainFrame
-
-local MainContentCorner = Instance.new("UICorner")
-MainContentCorner.CornerRadius = UDim.new(0, 12)
-MainContentCorner.Parent = MainContentFrame
-
-local MainContentListLayout = Instance.new("UIListLayout")
-MainContentListLayout.Padding = UDim.new(0, 15)
-MainContentListLayout.SortOrder = Enum.SortOrder.LayoutOrder
-MainContentListLayout.Parent = MainContentFrame
-
--- Frame des onglets VERTICAUX EN BAS (maintenant ils rentrent parfaitement)
-local TabsFrame = Instance.new("Frame")
-TabsFrame.Size = UDim2.new(1, -40, 0, 60)
-TabsFrame.Position = UDim2.new(0, 20, 1, -85)
-TabsFrame.BackgroundColor3 = Color3.fromRGB(20, 20, 20)
-TabsFrame.BackgroundTransparency = 0.2
-TabsFrame.BorderSizePixel = 0
-TabsFrame.Parent = MainFrame
-
-local TabsCorner = Instance.new("UICorner")
-TabsCorner.CornerRadius = UDim.new(0, 12)
-TabsCorner.Parent = TabsFrame
-
--- Fonction pour créer un onglet horizontal (en bas)
-local function createHorizontalTab(name, text, icon)
-    local Tab = Instance.new("TextButton")
-    Tab.Name = name
-    Tab.Size = UDim2.new(0, 140, 1, -10)  -- Élargi pour mieux rentrer
-    Tab.Position = UDim2.new(0, (#TabsFrame:GetChildren() - 2) * 145, 0, 5)
-    Tab.BackgroundColor3 = Color3.fromRGB(25, 25, 25)
-    Tab.BorderSizePixel = 0
-    Tab.Text = ""
-    Tab.AutoButtonColor = false
-    Tab.Parent = TabsFrame
-    
-    local TabCorner = Instance.new("UICorner")
-    TabCorner.CornerRadius = UDim.new(0, 10)
-    TabCorner.Parent = Tab
-    
-    local TabStroke = Instance.new("UIStroke")
-    TabStroke.Color = Color3.fromRGB(0, 255, 127)
-    TabStroke.Thickness = 1.5
-    TabStroke.Transparency = 0.8
-    TabStroke.Parent = Tab
-    
-    -- Icône
-    local TabIcon = Instance.new("TextLabel")
-    TabIcon.Size = UDim2.new(0, 25, 0, 25)
-    TabIcon.Position = UDim2.new(0.5, -12.5, 0, 5)
-    TabIcon.BackgroundTransparency = 1
-    TabIcon.Text = icon
-    TabIcon.TextScaled = true
-    TabIcon.Font = Enum.Font.GothamBold
-    TabIcon.Parent = Tab
-    
-    -- Texte
-    local TabLabel = Instance.new("TextLabel")
-    TabLabel.Size = UDim2.new(1, 0, 0, 20)
-    TabLabel.Position = UDim2.new(0, 0, 1, -22)
-    TabLabel.BackgroundTransparency = 1
-    TabLabel.Text = text
-    TabLabel.TextColor3 = Color3.fromRGB(200, 200, 200)
-    TabLabel.TextSize = 12
-    TabLabel.Font = Enum.Font.GothamBold
-    TabLabel.TextXAlignment = Enum.TextXAlignment.Center
-    TabLabel.Parent = Tab
-    
-    return Tab, TabStroke, TabLabel
-end
-
--- Création des onglets horizontaux EN BAS
-local PremiumTab, PremiumStroke, PremiumLabel = createHorizontalTab("PremiumTab", "PREMIUM", "💎")
-local ESPTab, ESPStroke, ESPLabel = createHorizontalTab("ESPTab", "ESP", "👁️")
-
--- Contenu ESP (petit en bas à droite)
-local ESPContent = Instance.new("Frame")
-ESPContent.Name = "ESPContent"
-ESPContent.Size = UDim2.new(0, 220, 0, 90)
-ESPContent.Position = UDim2.new(1, -250, 1, -100)
-ESPContent.BackgroundColor3 = Color3.fromRGB(15, 15, 15)
-ESPContent.BackgroundTransparency = 0.1
-ESPContent.Visible = false
-ESPContent.Parent = MainFrame
-
-local ESPContentCorner = Instance.new("UICorner")
-ESPContentCorner.CornerRadius = UDim.new(0, 10)
-ESPContentCorner.Parent = ESPContent
-
-local ESPPlaceholder = Instance.new("TextLabel")
-ESPPlaceholder.Size = UDim2.new(1, 0, 1, 0)
-ESPPlaceholder.BackgroundTransparency = 1
-ESPPlaceholder.Text = "🚧 ESP Features\nComing Soon..."
-ESPPlaceholder.TextColor3 = Color3.fromRGB(0, 255, 127)
-ESPPlaceholder.TextSize = 14
-ESPPlaceholder.Font = Enum.Font.GothamBold
-ESPPlaceholder.TextXAlignment = Enum.TextXAlignment.Center
-ESPPlaceholder.TextYAlignment = Enum.TextYAlignment.Center
-ESPPlaceholder.Parent = ESPContent
-
--- 🎯 FONCTION D'EXÉCUTION SÉCURISÉE
-local function executeScript(url)
-    pcall(function()
-        loadstring(game:HttpGet(url))()
-    end)
-end
-
--- ✅ TOUTES LES 4 FONCTIONS DANS LA ZONE PRINCIPALE (onglet PREMIUM par défaut)
-local InstantTP = Instance.new("TextButton")
-InstantTP.Name = "InstantTP"
-InstantTP.Size = UDim2.new(1, -20, 0, 70)
-InstantTP.BackgroundColor3 = Color3.fromRGB(25, 25, 25)
-InstantTP.BorderSizePixel = 0
-InstantTP.Text = ""
-InstantTP.AutoButtonColor = false
-InstantTP.Parent = MainContentFrame
-
-local InstantTPCorner = Instance.new("UICorner")
-InstantTPCorner.CornerRadius = UDim.new(0, 12)
-InstantTPCorner.Parent = InstantTP
-
-local InstantTPStroke = Instance.new("UIStroke")
-InstantTPStroke.Color = Color3.fromRGB(0, 255, 127)
-InstantTPStroke.Thickness = 1.5
-InstantTPStroke.Transparency = 0.6
-InstantTPStroke.Parent = InstantTP
-
-local InstantTPIcon = Instance.new("TextLabel")
-InstantTPIcon.Size = UDim2.new(0, 40, 0, 40)
-InstantTPIcon.Position = UDim2.new(0, 15, 0.5, -20)
-InstantTPIcon.BackgroundTransparency = 1
-InstantTPIcon.Text = "⚡"
-InstantTPIcon.TextScaled = true
-InstantTPIcon.Font = Enum.Font.GothamBold
-InstantTPIcon.TextColor3 = Color3.fromRGB(0, 255, 127)
-InstantTPIcon.Parent = InstantTP
-
-local InstantTPLabel = Instance.new("TextLabel")
-InstantTPLabel.Size = UDim2.new(1, -70, 0, 25)
-InstantTPLabel.Position = UDim2.new(0, 65, 0, 12)
-InstantTPLabel.BackgroundTransparency = 1
-InstantTPLabel.Text = "INSTANT TP"
-InstantTPLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
-InstantTPLabel.TextSize = 20
-InstantTPLabel.Font = Enum.Font.GothamBold
-InstantTPLabel.TextXAlignment = Enum.TextXAlignment.Left
-InstantTPLabel.Parent = InstantTP
-
-local AutoBlock = Instance.new("TextButton")
-AutoBlock.Name = "AutoBlock"
-AutoBlock.Size = UDim2.new(1, -20, 0, 70)
-AutoBlock.BackgroundColor3 = Color3.fromRGB(25, 25, 25)
-AutoBlock.BorderSizePixel = 0
-AutoBlock.Text = ""
-AutoBlock.AutoButtonColor = false
-AutoBlock.Parent = MainContentFrame
-
-local AutoBlockCorner = Instance.new("UICorner")
-AutoBlockCorner.CornerRadius = UDim.new(0, 12)
-AutoBlockCorner.Parent = AutoBlock
-
-local AutoBlockStroke = Instance.new("UIStroke")
-AutoBlockStroke.Color = Color3.fromRGB(0, 255, 127)
-AutoBlockStroke.Thickness = 1.5
-AutoBlockStroke.Transparency = 0.6
-AutoBlockStroke.Parent = AutoBlock
-
-local AutoBlockIcon = Instance.new("TextLabel")
-AutoBlockIcon.Size = UDim2.new(0, 40, 0, 40)
-AutoBlockIcon.Position = UDim2.new(0, 15, 0.5, -20)
-AutoBlockIcon.BackgroundTransparency = 1
-AutoBlockIcon.Text = "🛡️"
-AutoBlockIcon.TextScaled = true
-AutoBlockIcon.Font = Enum.Font.GothamBold
-AutoBlockIcon.TextColor3 = Color3.fromRGB(0, 255, 127)
-AutoBlockIcon.Parent = AutoBlock
-
-local AutoBlockLabel = Instance.new("TextLabel")
-AutoBlockLabel.Size = UDim2.new(1, -70, 0, 25)
-AutoBlockLabel.Position = UDim2.new(0, 65, 0, 12)
-AutoBlockLabel.BackgroundTransparency = 1
-AutoBlockLabel.Text = "AUTO-BLOCK"
-AutoBlockLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
-AutoBlockLabel.TextSize = 20
-AutoBlockLabel.Font = Enum.Font.GothamBold
-AutoBlockLabel.TextXAlignment = Enum.TextXAlignment.Left
-AutoBlockLabel.Parent = AutoBlock
-
-local Nameless = Instance.new("TextButton")
-Nameless.Name = "Nameless"
-Nameless.Size = UDim2.new(1, -20, 0, 70)
-Nameless.BackgroundColor3 = Color3.fromRGB(25, 25, 25)
-Nameless.BorderSizePixel = 0
-Nameless.Text = ""
-Nameless.AutoButtonColor = false
-Nameless.Parent = MainContentFrame
-
-local NamelessCorner = Instance.new("UICorner")
-NamelessCorner.CornerRadius = UDim.new(0, 12)
-NamelessCorner.Parent = Nameless
-
-local NamelessStroke = Instance.new("UIStroke")
-NamelessStroke.Color = Color3.fromRGB(0, 255, 127)
-NamelessStroke.Thickness = 1.5
-NamelessStroke.Transparency = 0.6
-NamelessStroke.Parent = Nameless
-
-local NamelessIcon = Instance.new("TextLabel")
-NamelessIcon.Size = UDim2.new(0, 40, 0, 40)
-NamelessIcon.Position = UDim2.new(0, 15, 0.5, -20)
-NamelessIcon.BackgroundTransparency = 1
-NamelessIcon.Text = "👻"
-NamelessIcon.TextScaled = true
-NamelessIcon.Font = Enum.Font.GothamBold
-NamelessIcon.TextColor3 = Color3.fromRGB(0, 255, 127)
-NamelessIcon.Parent = Nameless
-
-local NamelessLabel = Instance.new("TextLabel")
-NamelessLabel.Size = UDim2.new(1, -70, 0, 25)
-NamelessLabel.Position = UDim2.new(0, 65, 0, 12)
-NamelessLabel.BackgroundTransparency = 1
-NamelessLabel.Text = "NAMELESS"
-NamelessLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
-NamelessLabel.TextSize = 20
-NamelessLabel.Font = Enum.Font.GothamBold
-NamelessLabel.TextXAlignment = Enum.TextXAlignment.Left
-NamelessLabel.Parent = Nameless
-
-local SpeedBoost = Instance.new("TextButton")
-SpeedBoost.Name = "SpeedBoost"
-SpeedBoost.Size = UDim2.new(1, -20, 0, 70)
-SpeedBoost.BackgroundColor3 = Color3.fromRGB(25, 25, 25)
-SpeedBoost.BorderSizePixel = 0
-SpeedBoost.Text = ""
-SpeedBoost.AutoButtonColor = false
-SpeedBoost.Parent = MainContentFrame
-
-local SpeedBoostCorner = Instance.new("UICorner")
-SpeedBoostCorner.CornerRadius = UDim.new(0, 12)
-SpeedBoostCorner.Parent = SpeedBoost
-
-local SpeedBoostStroke = Instance.new("UIStroke")
-SpeedBoostStroke.Color = Color3.fromRGB(0, 255, 127)
-SpeedBoostStroke.Thickness = 1.5
-SpeedBoostStroke.Transparency = 0.6
-SpeedBoostStroke.Parent = SpeedBoost
-
-local SpeedBoostIcon = Instance.new("TextLabel")
-SpeedBoostIcon.Size = UDim2.new(0, 40, 0, 40)
-SpeedBoostIcon.Position = UDim2.new(0, 15, 0.5, -20)
-SpeedBoostIcon.BackgroundTransparency = 1
-SpeedBoostIcon.Text = "🚀"
-SpeedBoostIcon.TextScaled = true
-SpeedBoostIcon.Font = Enum.Font.GothamBold
-SpeedBoostIcon.TextColor3 = Color3.fromRGB(0, 255, 127)
-SpeedBoostIcon.Parent = SpeedBoost
-
-local SpeedBoostLabel = Instance.new("TextLabel")
-SpeedBoostLabel.Size = UDim2.new(1, -70, 0, 25)
-SpeedBoostLabel.Position = UDim2.new(0, 65, 0, 12)
-SpeedBoostLabel.BackgroundTransparency = 1
-SpeedBoostLabel.Text = "SPEED BOOST"
-SpeedBoostLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
-SpeedBoostLabel.TextSize = 20
-SpeedBoostLabel.Font = Enum.Font.GothamBold
-SpeedBoostLabel.TextXAlignment = Enum.TextXAlignment.Left
-SpeedBoostLabel.Parent = SpeedBoost
-
--- 🔥 EVENTS DES 4 BOUTONS PREMIUM
-InstantTP.MouseButton1Click:Connect(function()
-    executeScript("https://pandadevelopment.net/virtual/file/3e58fa5b69bab3b3")
-end)
-
-AutoBlock.MouseButton1Click:Connect(function()
-    executeScript("https://raw.githubusercontent.com/sabscripts063-cloud/Kdml-Not-Me/refs/heads/main/BlockPlayer")
-end)
-
-Nameless.MouseButton1Click:Connect(function()
-    executeScript("https://raw.githubusercontent.com/ily123950/Vulkan/refs/heads/main/Tr")
-end)
-
-SpeedBoost.MouseButton1Click:Connect(function()
-    executeScript("https://raw.githubusercontent.com/tienkhanh1/spicy/main/Chilli.lua")
-end)
-
--- Fonction pour changer d'onglet
-local function switchTab(tab)
-    PremiumStroke.Transparency = 0.8
-    PremiumLabel.TextColor3 = Color3.fromRGB(200, 200, 200)
-    PremiumTab.BackgroundColor3 = Color3.fromRGB(25, 25, 25)
-    ESPContent.Visible = false
-    
-    ESPStroke.Transparency = 0.8
-    ESPLabel.TextColor3 = Color3.fromRGB(200, 200, 200)
-    ESPTab.BackgroundColor3 = Color3.fromRGB(25, 25, 25)
-    MainContentFrame.Visible = false
-    
-    if tab == "Premium" then
-        PremiumStroke.Transparency = 0.2
-        PremiumLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
-        PremiumTab.BackgroundColor3 = Color3.fromRGB(0, 255, 127)
-        MainContentFrame.Visible = true
-    elseif tab == "ESP" then
-        ESPStroke.Transparency = 0.2
-        ESPLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
-        ESPTab.BackgroundColor3 = Color3.fromRGB(0, 255, 127)
-        ESPContent.Visible = true
-    end
-end
-
--- Onglet PREMIUM par défaut
-switchTab("Premium")
-
--- Events des onglets
-PremiumTab.MouseButton1Click:Connect(function()
-    switchTab("Premium")
-end)
-
-ESPTab.MouseButton1Click:Connect(function()
-    switchTab("ESP")
-end)
-
--- Effets hover pour tous les boutons
-local function addHoverEffect(button)
-    button.MouseEnter:Connect(function()
-        TweenService:Create(button:FindFirstChild("UIStroke"), TweenInfo.new(0.2), {Transparency = 0.2}):Play()
-        TweenService:Create(button, TweenInfo.new(0.2), {BackgroundColor3 = Color3.fromRGB(35, 35, 35)}):Play()
-    end)
-    
-    button.MouseLeave:Connect(function()
-        TweenService:Create(button:FindFirstChild("UIStroke"), TweenInfo.new(0.2), {Transparency = 0.6}):Play()
-        TweenService:Create(button, TweenInfo.new(0.2), {BackgroundColor3 = Color3.fromRGB(25, 25, 25)}):Play()
-    end)
-end
-
-addHoverEffect(InstantTP)
-addHoverEffect(AutoBlock)
-addHoverEffect(Nameless)
-addHoverEffect(SpeedBoost)
-
-CloseButton.MouseButton1Click:Connect(function()
-    antiCrashActive = false
-    TweenService:Create(MainFrame, TweenInfo.new(0.3, Enum.EasingStyle.Back, Enum.EasingDirection.In), {
-        Size = UDim2.new(0, 0, 0, 0)
-    }):Play()
-    wait(0.3)
-    ScreenGui:Destroy()
-end)
-
--- Système de déplacement
-local dragging = false
-local dragStart = nil
-local startPos = nil
-
-TitleBar.InputBegan:Connect(function(input)
-    if input.UserInputType == Enum.UserInputType.MouseButton1 then
-        dragging = true
-        dragStart = input.Position
-        startPos = MainFrame.Position
+-- Toggle AIMBOT
+ToggleButton.MouseButton1Click:Connect(function()
+    AIMBOT_ENABLED = not AIMBOT_ENABLED
+    if AIMBOT_ENABLED then
+        ToggleButton.Text = "🟢 AIMBOT ON"
+        ToggleButton.BackgroundColor3 = Color3.fromRGB(50, 255, 50)
+        StatusLabel.Text = "Status: ACTIVE"
+        StatusLabel.TextColor3 = Color3.fromRGB(0, 255, 0)
+    else
+        ToggleButton.Text = "🟥 AIMBOT OFF"
+        ToggleButton.BackgroundColor3 = Color3.fromRGB(255, 50, 50)
+        StatusLabel.Text = "Status: DISABLED"
+        StatusLabel.TextColor3 = Color3.fromRGB(255, 100, 100)
     end
 end)
 
-TitleBar.InputChanged:Connect(function(input)
-    if dragging and input.UserInputType == Enum.UserInputType.MouseMovement then
-        local delta = input.Position - dragStart
-        MainFrame.Position = UDim2.new(startPos.X.Scale, startPos.X.Offset + delta.X, 
-            startPos.Y.Scale, startPos.Y.Offset + delta.Y)
+-- Toggle avec F1
+UserInputService.InputBegan:Connect(function(input, gameProcessed)
+    if gameProcessed then return end
+    if input.KeyCode == Enum.KeyCode.F1 then
+        ToggleButton.MouseButton1Click:Fire()
     end
 end)
 
-UserInputService.InputEnded:Connect(function(input)
-    if input.UserInputType == Enum.UserInputType.MouseButton1 then
-        dragging = false
+-- 🎮 LOOP PRINCIPAL AIMBOT
+RunService.Heartbeat:Connect(function()
+    if not AIMBOT_ENABLED then 
+        closestTarget = nil
+        return 
+    end
+    
+    -- Trouve la cible la plus proche
+    closestTarget = findRedTargets()
+    
+    -- Met à jour l'interface
+    if closestTarget then
+        StatusLabel.Text = "Target: " .. math.floor(closestTarget.distance) .. "px"
+        StatusLabel.TextColor3 = Color3.fromRGB(0, 255, 255)
+        aimAtTarget(closestTarget)
+        autoClick()
+    else
+        StatusLabel.Text = "Status: No red targets"
+        StatusLabel.TextColor3 = Color3.fromRGB(255, 255, 0)
     end
 end)
 
--- Ajuster CanvasSize
-MainContentListLayout:GetPropertyChangedSignal("AbsoluteContentSize"):Connect(function()
-    MainContentFrame.CanvasSize = UDim2.new(0, 0, 0, MainContentListLayout.AbsoluteContentSize.Y + 20)
+-- Indicateur FOV (cercle rouge autour de la souris)
+local fovCircle = Drawing.new("Circle")
+fovCircle.Thickness = 2
+fovCircle.NumSides = 30
+fovCircle.Radius = FOV_RADIUS
+fovCircle.Color = Color3.fromRGB(255, 0, 0)
+fovCircle.Transparency = 0.5
+fovCircle.Filled = false
+fovCircle.Visible = true
+
+RunService.RenderStepped:Connect(function()
+    if AIMBOT_ENABLED then
+        fovCircle.Visible = true
+        fovCircle.Position = Vector2.new(mouse.X, mouse.Y)
+    else
+        fovCircle.Visible = false
+    end
 end)
 
--- Animation d'entrée
-MainFrame.Size = UDim2.new(0, 0, 0, 0)
-MainFrame.BackgroundTransparency = 1
-
-wait(0.1)
-
-TweenService:Create(MainFrame, TweenInfo.new(0.6, Enum.EasingStyle.Back, Enum.EasingDirection.Out), {
-    Size = UDim2.new(0, 600, 0, 550),
-    BackgroundTransparency = 0.05
-}):Play()
-
-print("⚡ SLAYZHUB v4.2 PREMIUM - 4 SCRIPTS CHARGÉS!")
+print("🔥 FPS TRAINER AIMBOT LOADED!")
+print("F1 = Toggle | Vise les points ROUGES + Auto-Click")
